@@ -1,7 +1,10 @@
 package shadowteam.creation.vec;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFluid;
+import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.IFluidBlock;
 
 /**
  * Location wrapper
@@ -33,6 +36,26 @@ public class Vec
         return world.getBlockId(xi(), yi(), zi());
     }
     
+    /** Gets the block's metadata for the location
+     * 
+     * @param world - world instance to check the location against
+     * @return meta value
+     */
+    public int getBlockMeta(World world)
+    {
+        return world.getBlockMetadata(xi(), yi(), zi());
+    }
+    
+    /** Gets the block's material for the location
+     * 
+     * @param world - world instance to check the location against
+     * @return Material, may be null
+     */
+    public Material getBlockMeterial(World world)
+    {
+        return world.getBlockMaterial(xi(), yi(), zi());
+    }
+    
     /** Gets the block for the location, does not check for out of array
      * 
      * @param world - world instance to check the location against
@@ -52,6 +75,17 @@ public class Vec
     {
         Block block = getBlock(world);
         return block == null || block.isAirBlock(world, xi(), yi(), zi());
+    }
+    
+    /** Is the block a fluid
+     * 
+     * @param world - world instance to check the location against
+     * @return true if fluid
+     */
+    public boolean isFluid(World world)
+    {
+        Block block = getBlock(world);
+        return block instanceof IFluidBlock || block instanceof BlockFluid;
     }
     
     //==============================
