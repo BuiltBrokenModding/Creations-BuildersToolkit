@@ -1,0 +1,78 @@
+// this part adds in ForgeGradle
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT' }
+}
+
+apply plugin: "forge"
+
+// stuff specific to my mod
+group = 'net.shadowteam'
+version = "0.1.0"
+archivesBaseName = 'creationMod'
+
+minecraft {
+    version = "1.6.4-9.11.1.964" // grab latest forge
+    assetDir = "run/assets"
+
+    // replacing
+    replace "@VERSION@", project.version
+    replaceIn "Creation.java"
+}
+
+// add some stuff to the version
+// spit out the version for debugging sake
+logger.lifecycle ""+version
+version = "${minecraft.version}-$version.${System.getenv().BUILD_NUMBER}"
+logger.lifecycle ""+version
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in text files, not binary ones.
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*.info'
+
+        // replace version and MCVersion
+        // forge version is also accessible via project.minecraftforgeVersion
+        // it contains the full minecraft version, including buildNumber
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    // copy everything else, thats not text
+    from(sourceSets.main.resources.srcDirs) { exclude '**/*.info' }
+}
+
+dependencies {
+    compile 'org.projectlombok:lombok:1.14.8'
+    compile 'com.google.gag:gag:1.0.1'
+}
+
+// because the normal output has been made to be obfuscated
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+}
+
+// add a source jar
+task sourceJar(type: Jar, dependsOn: "sourceMainJava") {
+    from "build/sources/java"
+    classifier = 'sources'
+}
+
+// add a javadoc jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}

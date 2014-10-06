@@ -1,0 +1,16 @@
+[
+{
+  "modid": "creationMod",
+  "name": "Creation Mod",
+  "description": "BLAH BLAH TODO",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "TODO",
+  "updateUrl": "TODO",
+  "authors": ["AbrarSyed", "DarkGuardsman"],
+  "credits": "???",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

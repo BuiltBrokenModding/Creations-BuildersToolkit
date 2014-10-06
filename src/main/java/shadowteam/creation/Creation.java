@@ -8,7 +8,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 /**
  * Created by robert on 10/1/2014.
  */
-@Mod(name = "Creation Mod", modid = "creationMod", version = "Dev_0.0.0.0")
+@Mod(name = "Creation Mod", modid = "creationMod", version = "@VERSION@")
 public class Creation
 {
     @SidedProxy(clientSide = "shadowteam.creation.ClientProxy", serverSide = "shadowteam.creation.CommonProxy")   
