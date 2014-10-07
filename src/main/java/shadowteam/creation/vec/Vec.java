@@ -131,4 +131,20 @@ public class Vec
     {
         return (float)z;
     }
+    
+    //==============================
+    // Get methods for the location data
+    //==============================
+    public Vec sub(double x, double y, double z)
+    {
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
+        return this;
+    }
+    
+    public Vec sub(Vec vec)
+    {
+        return sub(vec.x, vec.y, vec.z);
+    }
 }
