@@ -182,21 +182,17 @@ public final class SelectionHandler implements IPlayerTracker
 
         if (cube.isValid())
         {
-            float x = cube.getLowPoint().xf() - cube.getHighPoint().xf();
-            float y = cube.getLowPoint().yf() - cube.getHighPoint().yf();
-            float z = (float) (cube.getLowPoint().zf() - cube.getHighPoint().zf()) - 1;
+            float x = cube.getLowPoint().xf() - cube.getPointTwo().xf();
+            float y = cube.getLowPoint().yf() - cube.getPointTwo().yf();
+            float z = (float) (cube.getLowPoint().zf() - cube.getPointTwo().zf()) - 1;
 
             // translate to the low point..
             GL11.glTranslated(x, y, z);
 
             GL11.glScalef(1.0F, -1.0F, -1.0F);
             GL11.glColor3f(0, 5, 100);
-            // renderBlockBox(tess);
-            renderBlockBoxTo(tess, new Vec(
-                     cube.getHighPoint().xf() - cube.getLowPoint().xf() + 1,
-                    -(cube.getHighPoint().yf() - cube.getLowPoint().yf() + 1),
-                    -(cube.getHighPoint().zf() - cube.getLowPoint().zf() + 1))
-            );
+            
+            renderBlockBoxTo(tess, new Vec( cube.getXLength(), -cube.getYLength(), -cube.getZLength()));
         }
 
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
