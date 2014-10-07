@@ -67,6 +67,12 @@ public class Cube
         return highPoint.zi() - lowPoint.zi() + 1;
     }
     
+    /** Gets the size of the cube as a Vec */
+    public Vec getSize()
+    {
+        return new Vec(getXLength(), getYLength(), getZLength());
+    }
+    
     /**
      * Returns whether or not this Cube object is a valid cube.
      * Checks to ensure that neither internal vectors are null, and all Y values are above zero.
