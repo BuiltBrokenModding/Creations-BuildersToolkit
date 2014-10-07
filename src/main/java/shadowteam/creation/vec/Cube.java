@@ -1,6 +1,8 @@
 package shadowteam.creation.vec;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import net.minecraft.world.World;
 import shadowteam.creation.schematic.Schematic;
 
@@ -9,16 +11,20 @@ import shadowteam.creation.schematic.Schematic;
  * 
  * @author Darkguardsman
  */
-@Data
+@ToString
+@EqualsAndHashCode
 public class Cube
 {
-    private Vec pointOne; // left click
-    private Vec pointTwo; // right click
+    private @Getter Vec pointOne; // left click
+    private @Getter Vec pointTwo; // right click
+    private @Getter Vec lowPoint;
+    private @Getter Vec highPoint;
     
     public Cube(Vec one, Vec two)
     {
         pointOne = one;
         pointTwo = two;
+        recalc();
     }
     
     /**
@@ -48,5 +54,26 @@ public class Cube
             return false;
         
         return pointTwo.yi() >= 0 && pointOne.yi() >= 0;
+    }
+    
+    private void recalc()
+    {
+        if (!isValid())
+            return; // pointless if both arnt set.
+        
+        lowPoint = new Vec(Math.min(pointOne.xi(), pointTwo.xi()), Math.min(pointOne.yi(), pointTwo.yi()), Math.min(pointOne.zi(), pointTwo.zi()));
+        highPoint = new Vec(Math.max(pointOne.xi(), pointTwo.xi()), Math.max(pointOne.yi(), pointTwo.yi()), Math.max(pointOne.zi(), pointTwo.zi()));
+    }
+    
+    public void setPointOne(Vec vec)
+    {
+        pointOne = vec;
+        recalc();
+    }
+    
+    public void setPointTwo(Vec vec)
+    {
+        pointTwo = vec;
+        recalc();
     }
 }

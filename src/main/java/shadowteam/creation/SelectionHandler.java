@@ -2,19 +2,29 @@ package shadowteam.creation;
 
 import java.util.HashMap;
 
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ChatMessageComponent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
 import shadowteam.creation.vec.Cube;
 import shadowteam.creation.vec.Vec;
 
 import com.google.common.collect.Maps;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.IPlayerTracker;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * @author AbrarSyed
@@ -46,8 +56,6 @@ public final class SelectionHandler implements IPlayerTracker
             out = new Cube(null, null);
             INSTANCE.selections.put(username, out);
         }
-        
-        System.out.println("SELECT IS NULL!");
         
         return out;
     }
@@ -84,7 +92,6 @@ public final class SelectionHandler implements IPlayerTracker
         if (event.entityPlayer.getCurrentEquippedItem() != null && event.entityPlayer.getCurrentEquippedItem().getItem() != WAND_ITEM)
             return; // not holding the wand? dont care.
         
-        String username = event.entityPlayer.username;
         Cube select = getSelection(event.entityPlayer.username);
         Vec vec = new Vec(event.x, event.y, event.z);
         
@@ -95,7 +102,7 @@ public final class SelectionHandler implements IPlayerTracker
         
         // DEBUG CODE HERE.
         if (Creation.isDevEnv())
-            event.entityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("selection: " + select));;
+            event.entityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("selection: " + select));
         
         // we did stuff, cancel it.
         event.setCanceled(true);
@@ -110,4 +117,181 @@ public final class SelectionHandler implements IPlayerTracker
     @Override public void onPlayerLogout(EntityPlayer player) { clearSelection(player.username); }
     @Override public void onPlayerChangedDimension(EntityPlayer player) { clearSelection(player.username); }
     @Override public void onPlayerRespawn(EntityPlayer player) { clearSelection(player.username); }
+    
+    // ===========================================
+    // Rendering.
+    // taken from: ForgeEssentials
+    // ===========================================
+    
+    @SideOnly(Side.CLIENT)
+    @ForgeSubscribe
+    public void render(RenderWorldLastEvent event)
+    {
+        EntityPlayer player = FMLClientHandler.instance().getClient().thePlayer;
+        
+        if (player == null) // ya never know.
+            return;
+        
+        Cube cube = getSelection(player.username);
+
+        GL11.glPushMatrix();
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        Tessellator tess = Tessellator.instance;
+        Tessellator.renderingWorldRenderer = false;
+
+        // GL11.glLineWidth(20f);
+
+        boolean render1 = false;
+
+        // render p1
+        if (cube.getPointOne() != null)
+        {
+            Vec vec1 = cube.getPointOne();
+            GL11.glTranslated(vec1.xf() - RenderManager.renderPosX, vec1.yf() + 1 - RenderManager.renderPosY, vec1.zf() - RenderManager.renderPosZ);
+            GL11.glScalef(1.0F, -1.0F, -1.0F);
+            GL11.glColor3f(255, 0, 0);
+            renderBlockBox(tess);
+            render1 = true;
+        }
+
+        // render p2
+        if (cube.getPointTwo() != null)
+        {
+            Vec p1 = cube.getPointOne();
+            Vec p2 = cube.getPointTwo();
+
+            if (render1)
+            {
+                float x = p2.xf() - p1.xf();
+                float y = (float) (p1.yf() - p2.yf()) + 1;
+                float z = (float) (p1.zf() - p2.zf()) - 1;
+
+                GL11.glTranslated(x, y, z);
+            }
+            else
+            {
+                GL11.glTranslated(p2.xf() - RenderManager.renderPosX, p2.yf() + 1 - RenderManager.renderPosY, p2.zf() - RenderManager.renderPosZ);
+            }
+
+            GL11.glScalef(1.0F, -1.0F, -1.0F);
+            GL11.glColor3f(0, 255, 0);
+            renderBlockBox(tess);
+        }
+
+        if (cube.isValid())
+        {
+            float x = cube.getLowPoint().xf() - cube.getHighPoint().xf();
+            float y = cube.getLowPoint().yf() - cube.getHighPoint().yf();
+            float z = (float) (cube.getLowPoint().zf() - cube.getHighPoint().zf()) - 1;
+
+            // translate to the low point..
+            GL11.glTranslated(x, y, z);
+
+            GL11.glScalef(1.0F, -1.0F, -1.0F);
+            GL11.glColor3f(0, 5, 100);
+            // renderBlockBox(tess);
+            renderBlockBoxTo(tess, new Vec(
+                     cube.getHighPoint().xf() - cube.getLowPoint().xf() + 1,
+                    -(cube.getHighPoint().yf() - cube.getLowPoint().yf() + 1),
+                    -(cube.getHighPoint().zf() - cube.getLowPoint().zf() + 1))
+            );
+        }
+
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        // tess.renderingWorldRenderer = true;
+        GL11.glPopMatrix();
+    }
+
+    /**
+     * must be translated to proper point before calling
+     */
+    private void renderBlockBox(Tessellator tess)
+    {
+        tess.startDrawing(GL11.GL_LINES);
+
+        // FRONT
+        tess.addVertex(0, 0, 0);
+        tess.addVertex(0, 1, 0);
+
+        tess.addVertex(0, 1, 0);
+        tess.addVertex(1, 1, 0);
+
+        tess.addVertex(1, 1, 0);
+        tess.addVertex(1, 0, 0);
+
+        tess.addVertex(1, 0, 0);
+        tess.addVertex(0, 0, 0);
+
+        // BACK
+        tess.addVertex(0, 0, -1);
+        tess.addVertex(0, 1, -1);
+        tess.addVertex(0, 0, -1);
+        tess.addVertex(1, 0, -1);
+        tess.addVertex(1, 0, -1);
+        tess.addVertex(1, 1, -1);
+        tess.addVertex(0, 1, -1);
+        tess.addVertex(1, 1, -1);
+
+        // betweens.
+        tess.addVertex(0, 0, 0);
+        tess.addVertex(0, 0, -1);
+
+        tess.addVertex(0, 1, 0);
+        tess.addVertex(0, 1, -1);
+
+        tess.addVertex(1, 0, 0);
+        tess.addVertex(1, 0, -1);
+
+        tess.addVertex(1, 1, 0);
+        tess.addVertex(1, 1, -1);
+
+        tess.draw();
+    }
+
+    private void renderBlockBoxTo(Tessellator tess, Vec vec)
+    {
+        tess.startDrawing(GL11.GL_LINES);
+
+        // FRONT
+        tess.addVertex(0, 0, 0);
+        tess.addVertex(0, vec.yi(), 0);
+
+        tess.addVertex(0, vec.yi(), 0);
+        tess.addVertex(vec.xi(), vec.yi(), 0);
+
+        tess.addVertex(vec.xi(), vec.yi(), 0);
+        tess.addVertex(vec.xi(), 0, 0);
+
+        tess.addVertex(vec.xi(), 0, 0);
+        tess.addVertex(0, 0, 0);
+
+        // BACK
+        tess.addVertex(0, 0, vec.zi());
+        tess.addVertex(0, vec.yi(), vec.zi());
+        tess.addVertex(0, 0, vec.zi());
+        tess.addVertex(vec.xi(), 0, vec.zi());
+        tess.addVertex(vec.xi(), 0, vec.zi());
+        tess.addVertex(vec.xi(), vec.yi(), vec.zi());
+        tess.addVertex(0, vec.yi(), vec.zi());
+        tess.addVertex(vec.xi(), vec.yi(), vec.zi());
+
+        // betweens.
+        tess.addVertex(0, 0, 0);
+        tess.addVertex(0, 0, vec.zi());
+
+        tess.addVertex(0, vec.yi(), 0);
+        tess.addVertex(0, vec.yi(), vec.zi());
+
+        tess.addVertex(vec.xi(), 0, 0);
+        tess.addVertex(vec.xi(), 0, vec.zi());
+
+        tess.addVertex(vec.xi(), vec.yi(), 0);
+        tess.addVertex(vec.xi(), vec.yi(), vec.zi());
+
+        tess.draw();
+    }
 }
