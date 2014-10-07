@@ -1,5 +1,6 @@
 package shadowteam.creation.vec;
 
+import lombok.Data;
 import net.minecraft.world.World;
 import shadowteam.creation.schematic.Schematic;
 
@@ -8,10 +9,11 @@ import shadowteam.creation.schematic.Schematic;
  * 
  * @author Darkguardsman
  */
+@Data
 public class Cube
 {
-    Vec pointOne;
-    Vec pointTwo;
+    private Vec pointOne; // left click
+    private Vec pointTwo; // right click
     
     public Cube(Vec one, Vec two)
     {
@@ -33,5 +35,18 @@ public class Cube
             return sch;
         }
         return null;
+    }
+    
+    /**
+     * Returns whether or not this Cube object is a valid cube.
+     * Checks to ensure that neither internal vectors are null, and all Y values are above zero.
+     * @return
+     */
+    public boolean isValid()
+    {
+        if (pointOne == null || pointTwo == null)
+            return false;
+        
+        return pointTwo.yi() >= 0 && pointOne.yi() >= 0;
     }
 }

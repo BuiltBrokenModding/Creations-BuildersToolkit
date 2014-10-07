@@ -1,5 +1,7 @@
 package shadowteam.creation.vec;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFluid;
 import net.minecraft.block.material.Material;
@@ -10,6 +12,8 @@ import net.minecraftforge.fluids.IFluidBlock;
  * Location wrapper
  * @author Darkguardsman
  */
+@ToString
+@EqualsAndHashCode
 public class Vec
 {
     private double x = 0;
@@ -20,7 +24,14 @@ public class Vec
     {
         this.x = x;
         this.y = y;
+        this.z = z;
+    }
+    
+    public Vec(int x, int y, int z)
+    {
+        this.x = x;
         this.y = y;
+        this.z = z;
     }
     
     //==============================
