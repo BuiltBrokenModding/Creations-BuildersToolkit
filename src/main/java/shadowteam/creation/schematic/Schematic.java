@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.Getter;
+
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -22,8 +24,10 @@ import net.minecraftforge.fluids.IFluidBlock;
  */
 public class Schematic
 {
-    private String _name = "Schematic";
-    private BiMap<Vec, BlockMeta> blocks;
+    private @Getter String name = "Schematic";
+    private @Getter BiMap<Vec, BlockMeta> blocks;
+    private @Getter Vec size;
+    private @Getter Vec center;
     
     public Schematic()
     {
@@ -43,6 +47,9 @@ public class Schematic
     public Schematic load(World world, Cube cube)
     {
         blocks = HashBiMap.create();
+        size = cube.getSize();
+        center = new Vec(cube.getXLength() / 2, 0, cube.getYLength() / 2);
+        
         for(int y = cube.getLowPoint().yi();  y < cube.getYLength(); y++)
         {
             for(int x = cube.getLowPoint().xi();  x < cube.getXLength(); x++)
