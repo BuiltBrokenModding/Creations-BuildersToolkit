@@ -1,8 +1,11 @@
 package shadowteam.creation.schematic;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import lombok.Getter;
 
@@ -11,6 +14,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Table;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import shadowteam.creation.vec.Cube;
@@ -25,14 +30,17 @@ import net.minecraftforge.fluids.IFluidBlock;
  * @author Darkguardsman */
 public class Schematic
 {
-    private @Getter
-    String name = "Schematic";
-    private @Getter
-    BiMap<Vec, BlockMeta> blocks;
-    private @Getter
-    Vec size;
-    private @Getter
-    Vec center;
+    @Getter
+    private String name = "Schematic";
+
+    @Getter
+    private BiMap<Vec, BlockMeta> blocks;
+
+    @Getter
+    private Vec size;
+
+    @Getter
+    private Vec center;
 
     public Schematic()
     {
@@ -73,43 +81,98 @@ public class Schematic
         return this;
     }
 
-    public void load(NBTTagCompound nbt)
+    /** Loads a schematic from a NBTTagCompound, auto converts block ids and catchs missing blocks
+     * 
+     * @param nbt - NBTTagCompound to load from, must contain the correct data
+     * @return list of missing blocks if they are not present in this instance of the game
+     */
+    public List<MissingBlock> load(NBTTagCompound nbt)
     {
+        HashMap<Integer, MissingBlock> missingBlocks = new HashMap();
         byte[] loadedIDs = nbt.getByteArray("Blocks");
         byte[] metaLoaded = nbt.getByteArray("Data");
+
+        HashMap<Integer, Integer> idToNewId = new HashMap<Integer, Integer>();
+        NBTTagCompound idTag = nbt.getCompoundTag("idMap");
+        int mapSize = idTag.getInteger("size");
+        for (int i = 0; i < mapSize; i++)
+        {
+            String save = idTag.getString("s" + i);
+            String[] split = save.split(":");
+            String[] split2 = split[0].split(":");
+            String modName = split2[0];
+            String blockName = split2[1];
+            int blockId = Integer.getInteger(split[1]);
+            Block block = GameRegistry.findBlock(modName, blockName);
+            if (block != null)
+            {
+                idToNewId.put(blockId, block.blockID);
+            }
+            else
+            {
+                for(ModContainer mod : Loader.instance().getActiveModList())
+                {
+                    block = GameRegistry.findBlock(mod.getModId(), blockName);
+                    if (block != null)
+                    {
+                        idToNewId.put(blockId, block.blockID);
+                        break;
+                    }
+                }
+                if(block == null)
+                {
+                    missingBlocks.put(blockId, new MissingBlock(modName, blockName));
+                }
+            }
+        }
+
+        //Load ids & meta
         int index = 0;
         for (int y = 0; y < size.yi(); y++)
         {
             for (int z = 0; z < size.zi(); z++)
             {
                 for (int x = 0; x < size.xi(); x++)
-                {                
+                {
+                    Vec vec = new Vec(x, y, z);
                     int id = loadedIDs[index];
                     int meta = metaLoaded[index];
+                    
+                    if(idToNewId.containsKey(id))
+                    {
+                        blocks.put(vec, new BlockMeta(Block.blocksList[idToNewId.get(id)], meta));
+                    }
+                    else if(missingBlocks.containsKey(id))
+                    {
+                        missingBlocks.get(id).add(vec);
+                    }
                     index++;
-                
+
                 }
             }
         }
+        return new ArrayList<MissingBlock>(missingBlocks.values());
     }
 
     public void save(NBTTagCompound nbt)
     {
+        //Save size
         nbt.setShort("sizeX", (short) size.xi());
         nbt.setShort("sizeY", (short) size.yi());
         nbt.setShort("sizeZ", (short) size.zi());
 
+        //Save center
         nbt.setShort("centerX", (short) center.xi());
         nbt.setShort("centerY", (short) center.yi());
         nbt.setShort("centerZ", (short) center.zi());
 
-        // create arrays of IDs and and metadata + populate
+        //Save ids and meta
         byte[] setIDs = new byte[size.xi() * size.yi() * size.zi()];
         byte[] setMetas = new byte[size.xi() * size.yi() * size.zi()];
         int index = 0;
 
         HashMap<Integer, String> idToName = new HashMap<Integer, String>();
-        
+
         for (int y = 0; y < size.yi(); y++)
         {
             for (int z = 0; z < size.zi(); z++)
@@ -120,7 +183,7 @@ public class Schematic
                     BlockMeta block = blocks.get(vec);
                     if (block != null)
                     {
-                        if(!idToName.containsKey(block.getBlock().blockID))
+                        if (!idToName.containsKey(block.getBlock().blockID))
                         {
                             UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(block.getBlock());
                             idToName.put(block.getBlock().blockID, id.modId + ":" + id.name);
@@ -134,8 +197,16 @@ public class Schematic
         }
         nbt.setByteArray("Blocks", setIDs);
         nbt.setByteArray("Data", setMetas);
-        
-        //TODO save idToName map
+
+        //Save ids to names for translating during load time
+        NBTTagCompound idTag = new NBTTagCompound();
+        idTag.setShort("size", (short) idToName.size());
+        int o = 0;
+        for (Entry<Integer, String> entry : idToName.entrySet())
+        {
+            idTag.setString("s" + o, entry.getValue() + ":" + entry.getKey());
+        }
+        nbt.setTag("idMap", idTag);
 
     }
 
