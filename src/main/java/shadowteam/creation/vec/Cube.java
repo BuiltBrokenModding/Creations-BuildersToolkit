@@ -37,10 +37,34 @@ public class Cube
         if(world != null)
         {
             Schematic sch = new Schematic();
-            //TODO clone area
+            sch.load(world, this);
             return sch;
         }
         return null;
+    }
+    
+    /** Gets the 3D area of the selection */
+    public int getArea()
+    {
+        return getXLength() * getYLength() * getZLength();
+    }
+    
+    /** Gets x length of the area */
+    public int getXLength()
+    {
+        return highPoint.xi() - lowPoint.xi() + 1;
+    }
+
+    /** Gets y length of the area */
+    public int getYLength()
+    {
+        return highPoint.yi() - lowPoint.yi() + 1;
+    }
+
+    /** Gets z length of the area */
+    public int getZLength()
+    {
+        return highPoint.zi() - lowPoint.zi() + 1;
     }
     
     /**
