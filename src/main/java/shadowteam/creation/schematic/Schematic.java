@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -51,7 +52,7 @@ public class Schematic
 
     public Schematic(File file)
     {
-        //TODO populate _name with file's name
+        load(file);
     }
 
     /** Loads the selection from the world
@@ -101,10 +102,9 @@ public class Schematic
         {
             String save = idTag.getString("s" + i);
             String[] split = save.split(":");
-            String[] split2 = split[0].split(":");
-            String modName = split2[0];
-            String blockName = split2[1];
-            int blockId = Integer.getInteger(split[1]);
+            String modName = split[0];
+            String blockName = split[1];
+            int blockId = Integer.getInteger(split[2]);
             Block block = GameRegistry.findBlock(modName, blockName);
             if (block != null)
             {
@@ -173,7 +173,7 @@ public class Schematic
         byte[] setMetas = new byte[size.xi() * size.yi() * size.zi()];
         int index = 0;
 
-        HashMap<Integer, String> idToName = new HashMap<Integer, String>();
+        List<Block> blockList = new LinkedList<Block>();
 
         for (int y = 0; y < size.yi(); y++)
         {
@@ -185,10 +185,9 @@ public class Schematic
                     BlockMeta block = blocks.get(vec);
                     if (block != null)
                     {
-                        if (!idToName.containsKey(block.getBlock().blockID))
+                        if (!blockList.contains(block.getBlock()))
                         {
-                            UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(block.getBlock());
-                            idToName.put(block.getBlock().blockID, id.modId + ":" + id.name);
+                            blockList.add(block.getBlock());
                         }
                         setIDs[index] = (byte) (block.getBlock().blockID & 0xff);
                         setMetas[index] = (byte) (block.getMeta() & 0xff);
@@ -202,11 +201,13 @@ public class Schematic
 
         //Save ids to names for translating during load time
         NBTTagCompound idTag = new NBTTagCompound();
-        idTag.setShort("size", (short) idToName.size());
+        idTag.setShort("size", (short) blocks.size());
         int o = 0;
-        for (Entry<Integer, String> entry : idToName.entrySet())
+        for (Block block : blockList)
         {
-            idTag.setString("s" + o, entry.getValue() + ":" + entry.getKey());
+            UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(block);
+            idTag.setString("s" + o, id.modId + ":" + id.name + ":" + block.blockID);
+            o++;
         }
         nbt.setTag("idMap", idTag);
 
@@ -222,12 +223,10 @@ public class Schematic
             }
             catch (FileNotFoundException e)
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (IOException e)
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

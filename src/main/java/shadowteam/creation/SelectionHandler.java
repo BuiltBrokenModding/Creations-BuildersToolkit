@@ -1,11 +1,13 @@
 package shadowteam.creation;
 
+import java.io.File;
 import java.util.HashMap;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,6 +18,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import shadowteam.creation.schematic.Schematic;
 import shadowteam.creation.vec.Cube;
 import shadowteam.creation.vec.Vec;
 
@@ -95,11 +98,32 @@ public final class SelectionHandler implements IPlayerTracker
         Cube select = getSelection(event.entityPlayer.username);
         Vec vec = new Vec(event.x, event.y, event.z);
         
-        if (event.action == Action.LEFT_CLICK_BLOCK)
-            select.setPointOne(vec);
-        else if (event.action == Action.RIGHT_CLICK_BLOCK)
-            select.setPointTwo(vec);
-        
+        if(!event.entityPlayer.isSneaking())
+        {
+            if (event.action == Action.LEFT_CLICK_BLOCK)
+                select.setPointOne(vec);
+            else if (event.action == Action.RIGHT_CLICK_BLOCK)
+                select.setPointTwo(vec);        
+        }
+        else
+        {
+            if (event.action == Action.LEFT_CLICK_BLOCK && select.getLowPoint() != null && select.getHighPoint() != null)
+            {
+                //Create sch
+                Schematic sch = new Schematic();
+                sch.load(event.entityPlayer.worldObj, select);
+                NBTTagCompound tag = new NBTTagCompound();
+                sch.save(tag);
+                
+                //Save sch
+                File save = new File(NBTUtility.getBaseDirectory(), "schematics/TestSchematic" + System.currentTimeMillis() +".dat");
+                save.mkdirs();
+                NBTUtility.saveData(save, tag);
+                
+                event.entityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("Save Schematic to " + save.getAbsolutePath()));
+                
+            }
+        }
         // DEBUG CODE HERE.
         if (Creation.isDevEnv())
             event.entityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("selection: " + select));
