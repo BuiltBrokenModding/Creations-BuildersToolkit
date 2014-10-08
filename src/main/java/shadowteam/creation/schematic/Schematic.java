@@ -1,29 +1,31 @@
 package shadowteam.creation.schematic;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
 import lombok.Getter;
+import net.minecraft.block.Block;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.fluids.IFluidBlock;
+import shadowteam.creation.vec.Cube;
+import shadowteam.creation.vec.Vec;
 
-import com.google.common.collect.ArrayTable;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Table;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
-import shadowteam.creation.vec.Cube;
-import shadowteam.creation.vec.Vec;
-import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.IFluidBlock;
 
 /** Set of blocks that make up the instructions for building something
  * 
@@ -210,8 +212,52 @@ public class Schematic
 
     }
 
+    public void load(File file)
+    {
+        if (file.exists())
+        {
+            try
+            {
+                load(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+            }
+            catch (FileNotFoundException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public void save(File file)
     {
-
+        File tempFile = new File(file.getParent(), file.getName() + "_tmp.dat");
+        
+        NBTTagCompound tag = new NBTTagCompound();
+        save(tag);
+        
+        try
+        {
+            CompressedStreamTools.writeCompressed(tag, new FileOutputStream(tempFile));       
+    
+            if (file.exists())
+            {
+                file.delete();
+            }
+    
+            tempFile.renameTo(file);
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
