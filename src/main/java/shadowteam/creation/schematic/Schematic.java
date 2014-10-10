@@ -201,7 +201,7 @@ public class Schematic
 
         //Save ids to names for translating during load time
         NBTTagCompound idTag = new NBTTagCompound();
-        idTag.setShort("size", (short) blocks.size());
+        idTag.setShort("size", (short) blockList.size());
         int o = 0;
         for (Block block : blockList)
         {
