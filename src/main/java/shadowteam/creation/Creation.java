@@ -1,20 +1,30 @@
 package shadowteam.creation;
 
+import java.util.logging.Logger;
+
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.classloading.FMLForgePlugin;
 import net.minecraftforge.common.Configuration;
+import shadowteam.creation.network.HandlerClient;
+import shadowteam.creation.network.HandlerServer;
+import shadowteam.creation.network.PacketBase;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 /**
  * Created by robert on 10/1/2014.
  */
+@NetworkMod(clientSideRequired = true, serverSideRequired = true,
+    clientPacketHandlerSpec = @SidedPacketHandler(channels = { PacketBase.CHANNEL }, packetHandler = HandlerClient.class),
+    serverPacketHandlerSpec = @SidedPacketHandler(channels = { PacketBase.CHANNEL }, packetHandler = HandlerServer.class))
 @Mod(name = "Creation Mod", modid = Creation.MODID, version = "@VERSION@")
 public class Creation
 {
@@ -25,6 +35,7 @@ public class Creation
     
     @Instance(MODID)
     public static Creation INSTANCE;
+    public static Logger LOGGER;
     
     public static Item wand;
     public static CreativeTabs creativeTab;
@@ -32,7 +43,10 @@ public class Creation
     @EventHandler
     public void preInit(FMLPreInitializationEvent e)
     {
-        // do confug stuff
+        // configure logger
+        LOGGER = e.getModLog();
+        
+        // do conf\iug stuff
         Configuration config = new Configuration(e.getSuggestedConfigurationFile());
         int wandId = config.getItem("wanditemId", 9001).getInt();
         config.save();
