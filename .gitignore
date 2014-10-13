@@ -11,7 +11,8 @@ bin
 #gradle
 build
 .gradle
-run
+run/*
+!run/schematics
 
 #other
 *.class
