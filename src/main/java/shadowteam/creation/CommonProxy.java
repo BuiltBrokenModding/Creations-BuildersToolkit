@@ -1,6 +1,7 @@
 package shadowteam.creation;
 
 import cpw.mods.fml.common.network.IGuiHandler;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
@@ -10,19 +11,19 @@ import net.minecraft.world.World;
 public class CommonProxy implements IGuiHandler
 {
     /** Called on pre-load state of the mod */
-    private void preInit()
+    protected void preInit()
     {
 
     }
 
     /** Called on main load state of the mod */
-    private void init()
+    protected void init()
     {
-
+        NetworkRegistry.instance().registerGuiHandler(Creation.INSTANCE, this);
     }
 
     /** Called on post load state of the mod */
-    private void postInit()
+    protected void postInit()
     {
 
     }

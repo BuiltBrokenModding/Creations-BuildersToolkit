@@ -1,0 +1,6 @@
+# keybindings
+key.creation.wandGui=Open Creation Gui
+key.creation.wandMode=Toggle Creation Wand Mode
+
+# items
+item.CreationWand.name=Wand of Creation

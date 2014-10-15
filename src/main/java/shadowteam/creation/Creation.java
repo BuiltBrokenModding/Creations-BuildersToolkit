@@ -30,7 +30,7 @@ public class Creation
 {
     public static final String MODID = "creationMod";
     
-    @SidedProxy(clientSide = "shadowteam.creation.ClientProxy", serverSide = "shadowteam.creation.CommonProxy")   
+    @SidedProxy(clientSide = "shadowteam.creation.client.ClientProxy", serverSide = "shadowteam.creation.CommonProxy")   
     public static CommonProxy proxy;
     
     @Instance(MODID)
@@ -46,31 +46,35 @@ public class Creation
         // configure logger
         LOGGER = e.getModLog();
         
-        // do conf\iug stuff
+        // do config stuff
         Configuration config = new Configuration(e.getSuggestedConfigurationFile());
         int wandId = config.getItem("wanditemId", 9001).getInt();
         config.save();
 
         // make wand
-        wand = new Item(wandId-255).setNoRepair().setMaxStackSize(1).setMaxDamage(0).setTextureName(MODID+":wand");
+        wand = new Item(wandId-255).setNoRepair().setMaxStackSize(1).setMaxDamage(0).setTextureName(MODID+":wand").setUnlocalizedName("CreationWand");
         GameRegistry.registerItem(wand, MODID+":wand");
-        
         
         // creative tab
         creativeTab = new CreativeTabs(MODID) { @Override public Item getTabIconItem() { return wand; } };
         wand.setCreativeTab(creativeTab);
+        
+        // proxy
+        proxy.preInit();
     }
 
     @EventHandler
     public void init(FMLPostInitializationEvent e)
     {
         SelectionHandler.init();
+        
+        proxy.init();
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent e)
     {
-
+        proxy.postInit();
     }
     
     /**
