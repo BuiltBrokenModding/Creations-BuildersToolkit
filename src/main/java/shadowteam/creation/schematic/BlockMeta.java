@@ -1,6 +1,5 @@
 package shadowteam.creation.schematic;
 
-import lombok.Getter;
 import net.minecraft.block.Block;
 
 /** Wrapper class to store block and meta together
@@ -8,11 +7,9 @@ import net.minecraft.block.Block;
  * @author robert */
 public class BlockMeta
 {
-    @Getter
-    Block block;
+    private final Block block;
     
-    @Getter
-    int meta;
+    private final int meta;
 
     public BlockMeta(Block block, int meta)
     {
@@ -25,12 +22,22 @@ public class BlockMeta
     {
         if(obj instanceof BlockMeta)
         {
-            return ((BlockMeta) obj).getBlock() == block && ((BlockMeta) obj).getMeta() == meta;
+            return ((BlockMeta) obj).getBlock() == getBlock() && ((BlockMeta) obj).getMeta() == meta;
         }
         else if(obj instanceof Block)
         {
-            return ((BlockMeta) obj).getBlock() == block;
+            return ((BlockMeta) obj).getBlock() == getBlock();
         }
         return super.equals(obj);
+    }
+    
+    public Block getBlock()
+    {
+        return this.block;
+    }
+    
+    public int getMeta()
+    {
+        return this.meta;
     }
 }

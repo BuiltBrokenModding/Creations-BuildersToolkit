@@ -1,7 +1,5 @@
 package shadowteam.creation.vec;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFluid;
 import net.minecraft.block.material.Material;
@@ -12,8 +10,6 @@ import net.minecraftforge.fluids.IFluidBlock;
  * Location wrapper
  * @author Darkguardsman
  */
-@ToString
-@EqualsAndHashCode
 public class Vec
 {
     private double x = 0;
@@ -99,9 +95,11 @@ public class Vec
         return block instanceof IFluidBlock || block instanceof BlockFluid;
     }
     
-    //==============================
-    // Get methods for the location data
-    //==============================
+    ////////////////////////////////////////////
+    ///  Field Getters                       ///
+    ///             & Setters                ///
+    ////////////////////////////////////////////
+    
     public int xi()
     {
         return (int)x;
@@ -132,9 +130,9 @@ public class Vec
         return (float)z;
     }
     
-    //==============================
-    // Get methods for the location data
-    //==============================
+    ////////////////////////////////////////////
+    ///  Math helper methods                 ///
+    ////////////////////////////////////////////
     public Vec sub(double x, double y, double z)
     {
         this.x -= x;

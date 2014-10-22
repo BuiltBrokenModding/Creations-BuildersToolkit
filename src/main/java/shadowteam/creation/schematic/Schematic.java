@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import lombok.Getter;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,17 +31,14 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
  * 
  * @author Darkguardsman */
 public class Schematic
-{
-    @Getter
+{  
+
     private String name = "Schematic";
 
-    @Getter
     private BiMap<Vec, BlockMeta> blocks;
 
-    @Getter
     private Vec size;
 
-    @Getter
     private Vec center;
 
     public Schematic()
@@ -53,7 +49,12 @@ public class Schematic
     public Schematic(File file)
     {
         load(file);
-    }
+    }    
+
+    ////////////////////////////////////////////
+    ///  Save                                ///
+    ///             & Load                   ///
+    ////////////////////////////////////////////
 
     /** Loads the selection from the world
      * 
@@ -82,7 +83,8 @@ public class Schematic
             }
         }
         return this;
-    }
+    }   
+    
 
     /** Loads a schematic from a NBTTagCompound, auto converts block ids and catchs missing blocks
      * 
@@ -258,5 +260,45 @@ public class Schematic
         {
             e.printStackTrace();
         }
+    }
+    
+    ////////////////////////////////////////////
+    ///  Field Getters                       ///
+    ///             & Setters                ///
+    ////////////////////////////////////////////
+    
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public Vec getSize()
+    {
+        return size;
+    }
+
+    public void setSize(Vec size)
+    {
+        this.size = size;
+    }
+
+    public Vec getCenter()
+    {
+        return center;
+    }
+
+    public void setCenter(Vec center)
+    {
+        this.center = center;
+    }
+
+    public BiMap<Vec, BlockMeta> getBlocks()
+    {
+        return blocks;
     }
 }
