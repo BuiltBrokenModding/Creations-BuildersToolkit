@@ -98,7 +98,65 @@ public class Cube
     ///             Utility                  ///
     ////////////////////////////////////////////
     
-    public List<Vec> getBlocks(World world, Block block, int meta)
+    /**
+     * Replaces all blocks in the cube with a different type
+     * @param world - world to manipulate
+     * @param block - block to place
+     * @param meta - meta to place as
+     * @return list of location that were changed, used for Undo commands
+     */
+    public List<Vec> replaceBlocks(World world, Block block, int meta)
+    {
+        List<Vec> list = getBlockLocations(world, block, meta);
+        for(Vec vec : list)
+        {
+            vec.setBlock(world, block, meta);
+        }
+        return list;
+    }
+    
+    /** Grabs all blocks in the cube
+     *  
+     * @param world - world to search in
+     */
+    public List<Vec> getBlockLocations(World world)
+    {
+        return getBlockLocations(world, null, -1, -1);
+    }
+    
+    /**
+     * Grabs all blocks in the cube that match 
+     * @param world - world to search in
+     * @param block - block instance to match against
+     * @return list of blocks, never null but can be empty
+     */
+    public List<Vec> getBlockLocations(World world, Block block)
+    {
+        return getBlockLocations(world, block, -1, -1);
+    }
+    
+    /**
+     * Grabs all blocks in the cube that match 
+     * @param world - world to search in
+     * @param block - block instance to match against
+     * @param meta - meta value to match
+     * @return list of blocks, never null but can be empty
+     */
+    public List<Vec> getBlockLocations(World world, Block block, int meta)
+    {
+        return getBlockLocations(world, block, meta, -1);
+    }
+    
+    /**
+     * Grabs all blocks in the cube that match 
+     * @param world - world to search in
+     * @param block - block instance to match against, if null will match all
+     * @param meta - meta value to match, if -1 will match all meta
+     * @param size - limiter for the list in case only a few blocks are wanted. 
+     *                  If zero or less will not limit size
+     * @return list of blocks, never null but can be empty
+     */
+    public List<Vec> getBlockLocations(World world, Block block, int meta, int size)
     {
         List<Vec> list = new LinkedList<Vec>();
         for(int y = lowPoint.yi(); y <= highPoint.yi(); y++ )
@@ -107,13 +165,21 @@ public class Cube
             {
                 for(int z = lowPoint.zi(); z <= highPoint.zi(); z++ )
                 {
+                    if(size > 0&& list.size() > size)
+                        return list;
+                    
                     Vec vec = new Vec(x, y, z);
                     Block b = vec.getBlock(world);
+                    int m = vec.getBlockMeta(world);
+                    if(block == null || b == block && (meta == -1 || m == meta))
+                    {
+                        list.add(vec);
+                    }
                 }
             }
         }
         return list;
-    }
+    }   
     
     ////////////////////////////////////////////
     ///  Field Getters                       ///
