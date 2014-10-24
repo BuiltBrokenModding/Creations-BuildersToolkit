@@ -1,5 +1,9 @@
 package shadowteam.creation.vec;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import shadowteam.creation.schematic.Schematic;
 
@@ -88,6 +92,27 @@ public class Cube
         
         lowPoint = new Vec(Math.min(pointOne.xi(), pointTwo.xi()), Math.min(pointOne.yi(), pointTwo.yi()), Math.min(pointOne.zi(), pointTwo.zi()));
         highPoint = new Vec(Math.max(pointOne.xi(), pointTwo.xi()), Math.max(pointOne.yi(), pointTwo.yi()), Math.max(pointOne.zi(), pointTwo.zi()));
+    }
+    
+    ////////////////////////////////////////////
+    ///             Utility                  ///
+    ////////////////////////////////////////////
+    
+    public List<Vec> getBlocks(World world, Block block, int meta)
+    {
+        List<Vec> list = new LinkedList<Vec>();
+        for(int y = lowPoint.yi(); y <= highPoint.yi(); y++ )
+        {
+            for(int x = lowPoint.xi(); x <= highPoint.xi(); x++ )
+            {
+                for(int z = lowPoint.zi(); z <= highPoint.zi(); z++ )
+                {
+                    Vec vec = new Vec(x, y, z);
+                    Block b = vec.getBlock(world);
+                }
+            }
+        }
+        return list;
     }
     
     ////////////////////////////////////////////
