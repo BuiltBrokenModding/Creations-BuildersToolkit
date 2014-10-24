@@ -95,6 +95,58 @@ public class Vec
         return block instanceof IFluidBlock || block instanceof BlockFluid;
     }
     
+    
+    ////////////////////////////////////////////
+    ///  World Interaction                   ///
+    ////////////////////////////////////////////
+    
+    /**
+     * Sets the block to air at the location
+     * 
+     * @param world - world to manipulate
+     * @return true if the block was turned to air
+     */
+    public boolean setAir(World world)
+    {
+        return world.setBlockToAir(xi(), yi(), zi());
+    }
+    
+    /**
+     * Sets the block at the location
+     * @param world - world to manipulate
+     * @param block - block to set as
+     * @return true if the block was placed
+     */
+    public boolean setBlock(World world, Block block)
+    {
+        return setBlock(world, block, 0, 3);
+    }
+    
+    /**
+     * Sets the block at the location
+     * @param world - world to manipulate
+     * @param block - block to set as
+     * @param meta - meta value to set
+     * @return true if the block was placed
+     */
+    public boolean setBlock(World world, Block block, int meta)
+    {
+        return setBlock(world, block, meta, 3);
+    }
+    
+    /**
+     * Sets the block at the location
+     * @param world - world to manipulate
+     * @param block - block to set as
+     * @param meta - meta value to set
+     * @param notify - notify level to trigger, 2 for sync to client, 3 for update & sync
+     * @return true if the block was placed
+     */
+    public boolean setBlock(World world, Block block, int meta, int notify)
+    {
+        return world.setBlock(xi(), yi(), zi(), block.blockID, meta, notify);
+    }
+    
     ////////////////////////////////////////////
     ///  Field Getters                       ///
     ///             & Setters                ///
