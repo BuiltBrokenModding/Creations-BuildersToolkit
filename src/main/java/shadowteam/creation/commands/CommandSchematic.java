@@ -13,7 +13,7 @@ public class CommandSchematic extends CommandBase
     
     public CommandSchematic()
     {
-        
+        commands.add(new CommandCopy());
     }
     
     @Override
@@ -47,7 +47,7 @@ public class CommandSchematic extends CommandBase
                 String[] args = null;
                 for(SubCommand com : commands)
                 {
-                    if(com.getCommandName().equalsIgnoreCase("command"))
+                    if(com.getCommandName().equalsIgnoreCase(command))
                     {
                         if(args == null)
                         {
@@ -59,10 +59,11 @@ public class CommandSchematic extends CommandBase
                         }
                         if(com.processCommand(icommandsender, args))
                         {
-                            break;
+                            return;
                         }
                     }
                 }
+                icommandsender.sendChatToPlayer(ChatMessageComponent.createFromText("Unknown command '" + command +"'"));
             }
         }        
     }
