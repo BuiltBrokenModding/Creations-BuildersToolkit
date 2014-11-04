@@ -56,9 +56,11 @@ public class Schematic
     
     public void build(World world, Vec center)
     {
+        System.out.println("Paste debug");
         for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
         {
             Vec vec = entry.getKey().clone().add(center);
+            System.out.println(vec + "  " + entry.getValue());
             vec.setBlock(world, entry.getValue().getBlock(), entry.getValue().getMeta());
         }
     }
@@ -131,12 +133,16 @@ public class Schematic
         {
             //"s" + o, id.modId + ":" + id.name + ":" + block.blockID
             String save = idTag.getString("s" + i);
-            String[] split = save.split(":");
-            if(split.length != 3)
+            if(save == null || save.isEmpty())
                 continue;
-            String modName = split[0];
+            String[] split = save.split(":");
+            String modName = split[0];           
             String blockName = split[1];
-            int blockId = Integer.getInteger(split[2], 0);
+            int blockId = Integer.getInteger(split[2], -1);
+            
+            if(blockId == -1 || modName.equalsIgnoreCase("Minecraft") || blockName.equalsIgnoreCase("block"))
+                continue;
+            
             Block block = GameRegistry.findBlock(modName, blockName);
             if (block != null)
             {
@@ -174,11 +180,15 @@ public class Schematic
 
                     if (idToNewId.containsKey(id))
                     {
-                        blocks.put(vec, new BlockMeta(Block.blocksList[idToNewId.get(id)], meta));
+                        blocks.put(vec, new BlockMeta(Block.blocksList[idToNewId.get(id)], meta));                       
                     }
                     else if (missingBlocks.containsKey(id))
                     {
                         missingBlocks.get(id).add(vec);
+                    }
+                    else if(Block.blocksList[id] != null)
+                    {
+                        blocks.put(vec, new BlockMeta(Block.blocksList[id], meta));
                     }
                     index++;
 
@@ -231,8 +241,13 @@ public class Schematic
             if(id != null)
             {
                 idTag.setString("s" + o, id.modId + ":" + id.name + ":" + block.blockID);
-                o++;
+               
             }
+            else
+            {
+                idTag.setString("s" + o, "Minecraft:block:" + block.blockID);
+            }
+            o++;
         }
         nbt.setTag("idMap", idTag);
 
@@ -277,7 +292,26 @@ public class Schematic
     
     public Schematic rotateClockwise()
     {
-        Schematic 
+        Schematic sch = clone();
+        TreeMap<Vec, BlockMeta> map = new TreeMap<Vec, BlockMeta>();
+        for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
+        {
+            map.put(new Vec(entry.getKey().z, entry.getKey().y, size.xi() - entry.getKey().x), entry.getValue());
+        }
+        size = new Vec(size.z, size.y, size.x);
+        return sch;
+    }
+    
+    public Schematic rotateCounterClockwise()
+    {
+        Schematic sch = clone();
+        TreeMap<Vec, BlockMeta> map = new TreeMap<Vec, BlockMeta>();
+        for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
+        {
+            map.put(new Vec(size.zi() - entry.getKey().z, entry.getKey().y, entry.getKey().x), entry.getValue());
+        }
+        size = new Vec(size.z, size.y, size.x);
+        return sch;
     }
 
     ////////////////////////////////////////////

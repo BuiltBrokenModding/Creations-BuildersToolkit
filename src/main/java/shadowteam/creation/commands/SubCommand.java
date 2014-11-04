@@ -51,6 +51,6 @@ public abstract class SubCommand
      */
     protected boolean hasArg(String[] args, int slot)
     {
-        return args != null && args.length > slot & args[slot] != null;
+        return args != null && args.length > slot && args[slot] != null;
     }
 }

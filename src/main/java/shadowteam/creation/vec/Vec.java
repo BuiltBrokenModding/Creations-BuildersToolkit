@@ -152,7 +152,7 @@ public class Vec implements Comparable<Vec>, Cloneable
      */
     public boolean setBlock(World world, Block block, int meta, int notify)
     {
-        return world.setBlock(xi(), yi(), zi(), block.blockID, meta, notify);
+        return world != null && block != null ? world.setBlock(xi(), yi(), zi(), block.blockID, meta, notify) : false;
     }
     
     ////////////////////////////////////////////
@@ -217,7 +217,7 @@ public class Vec implements Comparable<Vec>, Cloneable
     
     public Vec add(Vec vec)
     {
-        return sub(vec.x, vec.y, vec.z);
+        return add(vec.x, vec.y, vec.z);
     }
     
     
