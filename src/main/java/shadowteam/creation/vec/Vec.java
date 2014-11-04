@@ -3,6 +3,7 @@ package shadowteam.creation.vec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFluid;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.IFluidBlock;
 
@@ -10,11 +11,18 @@ import net.minecraftforge.fluids.IFluidBlock;
  * Location wrapper
  * @author Darkguardsman
  */
-public class Vec implements Comparable<Vec> 
+public class Vec implements Comparable<Vec>, Cloneable
 {
     public double x = 0;
     public double y = 0;
     public double z = 0;
+    
+    public Vec(ChunkCoordinates c)
+    {
+        this.x = c.posX;
+        this.y = c.posY;
+        this.z = c.posZ;
+    }
     
     public Vec(double x, double y, double z)
     {
@@ -185,6 +193,7 @@ public class Vec implements Comparable<Vec>
     ////////////////////////////////////////////
     ///  Math helper methods                 ///
     ////////////////////////////////////////////
+    
     public Vec sub(double x, double y, double z)
     {
         this.x -= x;
@@ -197,6 +206,24 @@ public class Vec implements Comparable<Vec>
     {
         return sub(vec.x, vec.y, vec.z);
     }
+    
+    public Vec add(double x, double y, double z)
+    {
+        this.x += x;
+        this.y += y;
+        this.z += z;
+        return this;
+    }
+    
+    public Vec add(Vec vec)
+    {
+        return sub(vec.x, vec.y, vec.z);
+    }
+    
+    
+    ////////////////////////////////////////////
+    ///  Object Methods                      ///
+    ////////////////////////////////////////////
     
     @Override
     public String toString()
@@ -265,5 +292,11 @@ public class Vec implements Comparable<Vec>
         {
             return (int) (x - point.x + y - point.y + z - point.z);
         }
+    }
+    
+    @Override
+    public Vec clone()
+    {
+        return new Vec(x, y, z);
     }
 }

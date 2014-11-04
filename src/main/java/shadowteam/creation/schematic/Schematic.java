@@ -53,6 +53,15 @@ public class Schematic
     {
         load(file);
     }
+    
+    public void build(World world, Vec center)
+    {
+        for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
+        {
+            Vec vec = entry.getKey().clone().add(center);
+            vec.setBlock(world, entry.getValue().getBlock(), entry.getValue().getMeta());
+        }
+    }
 
     ////////////////////////////////////////////
     ///  Save                                ///
@@ -261,6 +270,15 @@ public class Schematic
             e.printStackTrace();
         }
     }
+    
+    ////////////////////////////////////////////
+    ///  Manipulation                        ///
+    ////////////////////////////////////////////
+    
+    public Schematic rotateClockwise()
+    {
+        Schematic 
+    }
 
     ////////////////////////////////////////////
     ///  Field Getters                       ///
@@ -300,5 +318,15 @@ public class Schematic
     public Map<Vec, BlockMeta> getBlocks()
     {
         return Collections.unmodifiableMap(blocks);
+    }
+    
+    public Schematic clone()
+    {
+        Schematic schematic = new Schematic();
+        schematic.blocks = (TreeMap<Vec, BlockMeta>) blocks.clone();
+        schematic.size = size;
+        schematic.center = center;
+        schematic.name = name;
+        return schematic;
     }
 }
