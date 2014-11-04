@@ -17,6 +17,7 @@ public class CommandSchematic extends CommandBase
         commands.add(new CommandCopy());
         commands.add(new CommandSave());
         commands.add(new CommandLS());
+        commands.add(new CommandLoad());
     }
     
     @Override

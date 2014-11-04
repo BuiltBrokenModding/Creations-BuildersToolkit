@@ -40,6 +40,8 @@ public class CommandLoad extends SubCommand
             {
                 Schematic schematic = new Schematic(file);
                 SelectionHandler.setSchematic(user.getCommandSenderName(), schematic);
+                user.sendChatToPlayer(ChatMessageComponent.createFromText("Schematic loaded into buffer"));
+                
             }
             catch(ZipException e)
             {

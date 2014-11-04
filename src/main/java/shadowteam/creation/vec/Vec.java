@@ -12,9 +12,9 @@ import net.minecraftforge.fluids.IFluidBlock;
  */
 public class Vec implements Comparable<Vec> 
 {
-    private double x = 0;
-    private double y = 0;
-    private double z = 0;
+    public double x = 0;
+    public double y = 0;
+    public double z = 0;
     
     public Vec(double x, double y, double z)
     {

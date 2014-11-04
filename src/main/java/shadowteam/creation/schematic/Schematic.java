@@ -97,7 +97,21 @@ public class Schematic
      * @return list of missing blocks if they are not present in this instance of the game */
     public List<MissingBlock> load(NBTTagCompound nbt)
     {
-        HashMap<Integer, MissingBlock> missingBlocks = new HashMap();
+        blocks = new TreeMap<Vec, BlockMeta>();
+        
+        //Save size
+        this.size = new Vec(0, 0, 0);
+        size.x = nbt.getShort("sizeX");
+        size.y = nbt.getShort("sizeY");
+        size.z = nbt.getShort("sizeZ");
+
+        //Save center
+        this.center = new Vec(0, 0, 0);
+        center.x = nbt.getShort("centerX");
+        center.y = nbt.getShort("centerY");
+        center.z = nbt.getShort("centerZ");
+        
+        HashMap<Integer, MissingBlock> missingBlocks = new HashMap<Integer, MissingBlock>();
         byte[] loadedIDs = nbt.getByteArray("Blocks");
         byte[] metaLoaded = nbt.getByteArray("Data");
 
@@ -106,11 +120,14 @@ public class Schematic
         int mapSize = idTag.getInteger("size");
         for (int i = 0; i < mapSize; i++)
         {
+            //"s" + o, id.modId + ":" + id.name + ":" + block.blockID
             String save = idTag.getString("s" + i);
             String[] split = save.split(":");
+            if(split.length != 3)
+                continue;
             String modName = split[0];
             String blockName = split[1];
-            int blockId = Integer.getInteger(split[2]);
+            int blockId = Integer.getInteger(split[2], 0);
             Block block = GameRegistry.findBlock(modName, blockName);
             if (block != null)
             {
