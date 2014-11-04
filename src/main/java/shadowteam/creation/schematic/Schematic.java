@@ -49,7 +49,7 @@ public class Schematic
 
     }
 
-    public Schematic(File file)
+    public Schematic(File file) throws FileNotFoundException, IOException
     {
         load(file);
     }
@@ -212,23 +212,9 @@ public class Schematic
 
     }
 
-    public void load(File file)
+    public void load(File file) throws FileNotFoundException, IOException
     {
-        if (file.exists())
-        {
-            try
-            {
-                load(CompressedStreamTools.readCompressed(new FileInputStream(file)));
-            }
-            catch (FileNotFoundException e)
-            {
-                e.printStackTrace();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        load(CompressedStreamTools.readCompressed(new FileInputStream(file)));  
     }
 
     public void save(File file)
