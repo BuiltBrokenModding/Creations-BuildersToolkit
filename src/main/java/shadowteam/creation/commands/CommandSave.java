@@ -35,7 +35,7 @@ public class CommandSave extends SubCommand
             NBTTagCompound tag = new NBTTagCompound();
             sch.save(tag);
             
-            File save = new File(NBTUtility.getBaseDirectory(), "schematics/" + sch.getName() +".dat");
+            File save = new File(SCHEMATICS_FOLDER, sch.getName() +".dat");
             if(!save.exists())
             {
                 save.mkdirs();
