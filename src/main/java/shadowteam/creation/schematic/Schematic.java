@@ -65,12 +65,11 @@ public class Schematic
         blocks = HashBiMap.create();
         size = cube.getSize();
         center = new Vec(cube.getXLength() / 2, 0, cube.getYLength() / 2);
-
-        for (int y = cube.getLowPoint().yi(); y < cube.getYLength(); y++)
+        for (int y = cube.getLowPoint().yi(); y <= cube.getHighPoint().yi(); y++)
         {
-            for (int x = cube.getLowPoint().xi(); x < cube.getXLength(); x++)
+            for (int x = cube.getLowPoint().xi(); x <= cube.getHighPoint().xi(); x++)
             {
-                for (int z = cube.getLowPoint().zi(); z < cube.getZLength(); z++)
+                for (int z = cube.getLowPoint().zi(); z <= cube.getHighPoint().zi(); z++)
                 {
                     Vec vec = new Vec(x, y, z).sub(cube.getLowPoint());
                     Block block = vec.getBlock(world);
@@ -160,6 +159,7 @@ public class Schematic
 
     public void save(NBTTagCompound nbt)
     {
+        System.out.println("Debug: Schematic save");
         //Save size
         nbt.setShort("sizeX", (short) size.xi());
         nbt.setShort("sizeY", (short) size.yi());
@@ -185,11 +185,13 @@ public class Schematic
                 {
                     Vec vec = new Vec(x, y, z);
                     BlockMeta block = blocks.get(vec);
+                    System.out.println(vec + "\n\t" + block);
                     if (block != null)
                     {
                         if (!blockList.contains(block.getBlock()))
                         {
                             blockList.add(block.getBlock());
+                            System.out.println("Added block to list " + block.getBlock());
                         }
                         setIDs[index] = (byte) (block.getBlock().blockID & 0xff);
                         setMetas[index] = (byte) (block.getMeta() & 0xff);
@@ -203,7 +205,7 @@ public class Schematic
 
         //Save ids to names for translating during load time
         NBTTagCompound idTag = new NBTTagCompound();
-        idTag.setShort("size", (short) blockList.size());
+        idTag.setInteger("size", blockList.size());
         int o = 0;
         for (Block block : blockList)
         {

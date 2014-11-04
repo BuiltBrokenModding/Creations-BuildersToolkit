@@ -197,4 +197,10 @@ public class Vec
     {
         return sub(vec.x, vec.y, vec.z);
     }
+    
+    @Override
+    public String toString()
+    {
+        return "Vec " + xi() + "x " + yi() + "y " + zi() + "z ";
+    }
 }

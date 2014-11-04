@@ -40,4 +40,10 @@ public class BlockMeta
     {
         return this.meta;
     }
+    
+    @Override
+    public String toString()
+    {
+        return "BlockMeta[" + block + "@" + meta + "]";
+    }
 }
