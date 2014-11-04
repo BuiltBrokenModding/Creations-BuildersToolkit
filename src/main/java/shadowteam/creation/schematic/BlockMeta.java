@@ -44,6 +44,6 @@ public class BlockMeta
     @Override
     public String toString()
     {
-        return "BlockMeta[" + block + "@" + meta + "]";
+        return "BlockMeta[" + (block != null ? block.getUnlocalizedName() : null) + "@" + meta + "]";
     }
 }

@@ -6,10 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -31,11 +34,11 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
  * 
  * @author Darkguardsman */
 public class Schematic
-{  
+{
 
     private String name = "Schematic";
 
-    private BiMap<Vec, BlockMeta> blocks;
+    private TreeMap<Vec, BlockMeta> blocks;
 
     private Vec size;
 
@@ -49,7 +52,7 @@ public class Schematic
     public Schematic(File file)
     {
         load(file);
-    }    
+    }
 
     ////////////////////////////////////////////
     ///  Save                                ///
@@ -62,17 +65,21 @@ public class Schematic
      * @param cube - area to load from */
     public Schematic load(World world, Cube cube)
     {
-        blocks = HashBiMap.create();
+        blocks = new TreeMap<Vec, BlockMeta>();
         size = cube.getSize();
         center = new Vec(cube.getXLength() / 2, 0, cube.getYLength() / 2);
+
         for (int y = cube.getLowPoint().yi(); y <= cube.getHighPoint().yi(); y++)
         {
             for (int x = cube.getLowPoint().xi(); x <= cube.getHighPoint().xi(); x++)
             {
                 for (int z = cube.getLowPoint().zi(); z <= cube.getHighPoint().zi(); z++)
                 {
-                    Vec vec = new Vec(x, y, z).sub(cube.getLowPoint());
+                    Vec vec = new Vec(x, y, z);
                     Block block = vec.getBlock(world);
+                    System.out.println(vec);
+                    vec = vec.sub(cube.getLowPoint());
+
                     if (block != null && !block.isAirBlock(world, x, y, z) && !(block instanceof IFluidBlock))
                     {
                         BlockMeta blockMeta = new BlockMeta(block, vec.getBlockMeta(world));
@@ -82,14 +89,12 @@ public class Schematic
             }
         }
         return this;
-    }   
-    
+    }
 
     /** Loads a schematic from a NBTTagCompound, auto converts block ids and catchs missing blocks
      * 
      * @param nbt - NBTTagCompound to load from, must contain the correct data
-     * @return list of missing blocks if they are not present in this instance of the game
-     */
+     * @return list of missing blocks if they are not present in this instance of the game */
     public List<MissingBlock> load(NBTTagCompound nbt)
     {
         HashMap<Integer, MissingBlock> missingBlocks = new HashMap();
@@ -113,7 +118,7 @@ public class Schematic
             }
             else
             {
-                for(ModContainer mod : Loader.instance().getActiveModList())
+                for (ModContainer mod : Loader.instance().getActiveModList())
                 {
                     block = GameRegistry.findBlock(mod.getModId(), blockName);
                     if (block != null)
@@ -122,7 +127,7 @@ public class Schematic
                         break;
                     }
                 }
-                if(block == null)
+                if (block == null)
                 {
                     missingBlocks.put(blockId, new MissingBlock(modName, blockName));
                 }
@@ -140,12 +145,12 @@ public class Schematic
                     Vec vec = new Vec(x, y, z);
                     int id = loadedIDs[index];
                     int meta = metaLoaded[index];
-                    
-                    if(idToNewId.containsKey(id))
+
+                    if (idToNewId.containsKey(id))
                     {
                         blocks.put(vec, new BlockMeta(Block.blocksList[idToNewId.get(id)], meta));
                     }
-                    else if(missingBlocks.containsKey(id))
+                    else if (missingBlocks.containsKey(id))
                     {
                         missingBlocks.get(id).add(vec);
                     }
@@ -159,7 +164,6 @@ public class Schematic
 
     public void save(NBTTagCompound nbt)
     {
-        System.out.println("Debug: Schematic save");
         //Save size
         nbt.setShort("sizeX", (short) size.xi());
         nbt.setShort("sizeY", (short) size.yi());
@@ -177,28 +181,16 @@ public class Schematic
 
         List<Block> blockList = new LinkedList<Block>();
 
-        for (int y = 0; y < size.yi(); y++)
+        for (BlockMeta block : blocks.values())
         {
-            for (int z = 0; z < size.zi(); z++)
+            if (!blockList.contains(block.getBlock()))
             {
-                for (int x = 0; x < size.xi(); x++)
-                {
-                    Vec vec = new Vec(x, y, z);
-                    BlockMeta block = blocks.get(vec);
-                    System.out.println(vec + "\n\t" + block);
-                    if (block != null)
-                    {
-                        if (!blockList.contains(block.getBlock()))
-                        {
-                            blockList.add(block.getBlock());
-                            System.out.println("Added block to list " + block.getBlock());
-                        }
-                        setIDs[index] = (byte) (block.getBlock().blockID & 0xff);
-                        setMetas[index] = (byte) (block.getMeta() & 0xff);
-                    }
-                    index++;
-                }
+                blockList.add(block.getBlock());
             }
+            setIDs[index] = (byte) (block.getBlock().blockID & 0xff);
+            setMetas[index] = (byte) (block.getMeta() & 0xff);
+            
+            index++;
         }
         nbt.setByteArray("Blocks", setIDs);
         nbt.setByteArray("Data", setMetas);
@@ -210,8 +202,11 @@ public class Schematic
         for (Block block : blockList)
         {
             UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(block);
-            idTag.setString("s" + o, id.modId + ":" + id.name + ":" + block.blockID);
-            o++;
+            if(id != null)
+            {
+                idTag.setString("s" + o, id.modId + ":" + id.name + ":" + block.blockID);
+                o++;
+            }
         }
         nbt.setTag("idMap", idTag);
 
@@ -235,23 +230,23 @@ public class Schematic
             }
         }
     }
-    
+
     public void save(File file)
     {
         File tempFile = new File(file.getParent(), file.getName() + "_tmp.dat");
-        
+
         NBTTagCompound tag = new NBTTagCompound();
         save(tag);
-        
+
         try
         {
-            CompressedStreamTools.writeCompressed(tag, new FileOutputStream(tempFile));       
-    
+            CompressedStreamTools.writeCompressed(tag, new FileOutputStream(tempFile));
+
             if (file.exists())
             {
                 file.delete();
             }
-    
+
             tempFile.renameTo(file);
         }
         catch (FileNotFoundException e)
@@ -263,12 +258,12 @@ public class Schematic
             e.printStackTrace();
         }
     }
-    
+
     ////////////////////////////////////////////
     ///  Field Getters                       ///
     ///             & Setters                ///
     ////////////////////////////////////////////
-    
+
     public String getName()
     {
         return name;
@@ -299,8 +294,8 @@ public class Schematic
         this.center = center;
     }
 
-    public BiMap<Vec, BlockMeta> getBlocks()
+    public Map<Vec, BlockMeta> getBlocks()
     {
-        return blocks;
+        return Collections.unmodifiableMap(blocks);
     }
 }

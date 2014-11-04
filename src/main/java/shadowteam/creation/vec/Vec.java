@@ -10,7 +10,7 @@ import net.minecraftforge.fluids.IFluidBlock;
  * Location wrapper
  * @author Darkguardsman
  */
-public class Vec
+public class Vec implements Comparable<Vec> 
 {
     private double x = 0;
     private double y = 0;
@@ -202,5 +202,68 @@ public class Vec
     public String toString()
     {
         return "Vec " + xi() + "x " + yi() + "y " + zi() + "z ";
+    }
+    
+    @Override
+    public boolean equals(Object object)
+    {
+        if(object instanceof Vec)
+        {
+            return xi() == ((Vec)object).xi() && yi() == ((Vec)object).yi() && zi() == ((Vec)object).zi();
+        }
+        return super.equals(object);
+    }
+    
+    @Override
+    public int compareTo(Vec point)
+    {
+        if (equals(point))
+        {
+            return 0;
+        }
+
+        int positives = 0;
+        int negatives = 0;
+
+
+        if (y > point.y)
+        {
+            positives++;
+        }
+        else
+        {
+            negatives++;
+        }
+        
+        if (x > point.x)
+        {
+            positives++;
+        }
+        else
+        {
+            negatives++;
+        }
+
+        if (z > point.z)
+        {
+            positives++;
+        }
+        else
+        {
+            negatives++;
+        }
+
+        if (positives > negatives)
+        {
+            return +1;
+        }
+        else if (negatives > positives)
+        {
+            return -1;
+        }
+        else
+        {
+            return (int) (x - point.x + y - point.y + z - point.z);
+        }
     }
 }
