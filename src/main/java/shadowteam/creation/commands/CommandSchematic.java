@@ -14,6 +14,7 @@ public class CommandSchematic extends CommandBase
     public CommandSchematic()
     {
         commands.add(new CommandCopy());
+        commands.add(new CommandSave());
     }
     
     @Override
@@ -49,7 +50,7 @@ public class CommandSchematic extends CommandBase
                 {
                     if(com.getCommandName().equalsIgnoreCase(command))
                     {
-                        if(args == null)
+                        if(args == null && astring.length > 1)
                         {
                             args = new String[astring.length - 1];
                             for(int i = 0; i < astring.length; i++)

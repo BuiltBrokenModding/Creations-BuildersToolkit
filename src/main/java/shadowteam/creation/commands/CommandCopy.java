@@ -39,6 +39,8 @@ public class CommandCopy extends SubCommand
                 Schematic sch = new Schematic();
                 sch.setName(name);
                 sch.load(icommandsender.getEntityWorld(), cube);
+                SelectionHandler.setSchematic(username, sch);
+                icommandsender.sendChatToPlayer(ChatMessageComponent.createFromText("Selection loaded into buffer"));
             }
             else
             {

@@ -38,6 +38,7 @@ public final class SelectionHandler implements IPlayerTracker
     private static final Item WAND_ITEM = Creation.wand;
     
     private final HashMap<String, Cube> selections = Maps.newHashMap();
+    private final HashMap<String, Schematic> schematics = Maps.newHashMap();
     
     private SelectionHandler() {};
     
@@ -63,9 +64,33 @@ public final class SelectionHandler implements IPlayerTracker
         return out;
     }
     
+    /** Gets the current selected schematic
+     *  
+     * @param username - user's name
+     * @return schematic, null if user has not loaded a schematic
+     */
+    public static Schematic getSchematic(String username)
+    {
+        if(INSTANCE.schematics.containsKey(username))
+        {
+            return INSTANCE.schematics.get(username);
+        }
+        return null;
+    }
+    
+    /** Sets the player's loaded schematic
+     * 
+     * @param username - user's name to set the schematic to load by
+     * @param schematic - instance of a schematic
+     */
+    public static void setSchematic(String username, Schematic schematic)
+    {
+        INSTANCE.schematics.put(username, schematic);
+    }
+    
     /**
      * Resets the selection of the player to a cube with null components
-     * @param playerId
+     * @param playerId - player's username
      */
     private void clearSelection(String playerId)
     {
@@ -79,6 +104,18 @@ public final class SelectionHandler implements IPlayerTracker
         {
             select.setPointOne(null);
             select.setPointTwo(null);
+        }
+    }
+    
+    /**
+     * Clears the schematic currently loaded by the player
+     * @param playerId - player's username
+     */
+    private void clearSchematic(String playerId)
+    {
+        if(INSTANCE.schematics.containsKey(playerId))
+        {
+            INSTANCE.schematics.remove(playerId);
         }
     }
     
@@ -98,32 +135,11 @@ public final class SelectionHandler implements IPlayerTracker
         Cube select = getSelection(event.entityPlayer.username);
         Vec vec = new Vec(event.x, event.y, event.z);
         
-        if(!event.entityPlayer.isSneaking())
-        {
-            if (event.action == Action.LEFT_CLICK_BLOCK)
-                select.setPointOne(vec);
-            else if (event.action == Action.RIGHT_CLICK_BLOCK)
-                select.setPointTwo(vec);        
-        }
-        else
-        {
-            if (event.action == Action.LEFT_CLICK_BLOCK && select.getLowPoint() != null && select.getHighPoint() != null)
-            {
-                //Create sch
-                Schematic sch = new Schematic();
-                sch.load(event.entityPlayer.worldObj, select);
-                NBTTagCompound tag = new NBTTagCompound();
-                sch.save(tag);
-                
-                //Save sch
-                File save = new File(NBTUtility.getBaseDirectory(), "schematics/TestSchematic" + System.currentTimeMillis() +".dat");
-                save.mkdirs();
-                NBTUtility.saveData(save, tag);
-                
-                event.entityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("Save Schematic to " + save.getAbsolutePath()));
-                
-            }
-        }
+        if (event.action == Action.LEFT_CLICK_BLOCK)
+            select.setPointOne(vec);
+        else if (event.action == Action.RIGHT_CLICK_BLOCK)
+            select.setPointTwo(vec); 
+        
         // DEBUG CODE HERE.
         if (Creation.isDevEnv())
             event.entityPlayer.sendChatToPlayer(new ChatMessageComponent().addText("selection: " + select));
@@ -137,10 +153,10 @@ public final class SelectionHandler implements IPlayerTracker
     // they are to clear the selection of the player.
     // ===========================================
 
-    @Override public void onPlayerLogin(EntityPlayer player) { clearSelection(player.username); }
-    @Override public void onPlayerLogout(EntityPlayer player) { clearSelection(player.username); }
-    @Override public void onPlayerChangedDimension(EntityPlayer player) { clearSelection(player.username); }
-    @Override public void onPlayerRespawn(EntityPlayer player) { clearSelection(player.username); }
+    @Override public void onPlayerLogin(EntityPlayer player) { clearSelection(player.username); clearSchematic(player.username); }
+    @Override public void onPlayerLogout(EntityPlayer player) { clearSelection(player.username); clearSchematic(player.username); }
+    @Override public void onPlayerChangedDimension(EntityPlayer player) { clearSelection(player.username); clearSchematic(player.username); }
+    @Override public void onPlayerRespawn(EntityPlayer player) { clearSelection(player.username); clearSchematic(player.username); }
     
     // ===========================================
     // Rendering.
