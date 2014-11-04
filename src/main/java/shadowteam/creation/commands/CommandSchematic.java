@@ -1,6 +1,7 @@
 package shadowteam.creation.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.command.CommandBase;
@@ -15,6 +16,7 @@ public class CommandSchematic extends CommandBase
     {
         commands.add(new CommandCopy());
         commands.add(new CommandSave());
+        commands.add(new CommandLS());
     }
     
     @Override
@@ -45,19 +47,11 @@ public class CommandSchematic extends CommandBase
             }
             else
             {
-                String[] args = null;
+                String[] args = Arrays.copyOfRange(astring, 1, astring.length);
                 for(SubCommand com : commands)
                 {
                     if(com.getCommandName().equalsIgnoreCase(command))
-                    {
-                        if(args == null && astring.length > 1)
-                        {
-                            args = new String[astring.length - 1];
-                            for(int i = 0; i < astring.length; i++)
-                            {
-                                args[i] = astring[i + 1];
-                            }
-                        }
+                    {                       
                         if(com.processCommand(icommandsender, args))
                         {
                             return;
