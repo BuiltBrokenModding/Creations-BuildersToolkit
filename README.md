@@ -1,4 +1,4 @@
-Creations: Build's Toolkit
+Creations: Builder's Toolkit
 =============================================
 This mod is designed for the creations modpack as a replacement for world edit. As well a non-admin way to manipulate large areas of the world without using a methods that feel cheaty. 
 
