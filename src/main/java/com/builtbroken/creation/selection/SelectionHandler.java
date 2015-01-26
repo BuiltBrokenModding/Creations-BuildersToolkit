@@ -1,15 +1,9 @@
 package com.builtbroken.creation.selection;
 
-import com.builtbroken.creation.Creation;
 import com.builtbroken.creation.schematic.Schematic;
-import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.google.common.collect.Maps;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
-import net.minecraft.item.Item;
-import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -20,7 +14,6 @@ import java.util.UUID;
 public final class SelectionHandler
 {
     public static final SelectionHandler INSTANCE = new SelectionHandler();
-    private static final Item WAND_ITEM = Creation.wand;
 
     private final HashMap<UUID, Selection> selections = Maps.newHashMap();
     private final HashMap<UUID, Schematic> schematics = Maps.newHashMap();
@@ -49,14 +42,13 @@ public final class SelectionHandler
     /**
      * Gets the current selected schematic
      *
-     * @param username - user's name
      * @return schematic, null if user has not loaded a schematic
      */
-    public static Schematic getSchematic(String username)
+    public static Schematic getSchematic(UUID id)
     {
-        if (INSTANCE.schematics.containsKey(username))
+        if (INSTANCE.schematics.containsKey(id))
         {
-            return INSTANCE.schematics.get(username);
+            return INSTANCE.schematics.get(id);
         }
         return null;
     }
@@ -100,35 +92,6 @@ public final class SelectionHandler
         {
             INSTANCE.schematics.remove(playerId);
         }
-    }
-
-    /**
-     * handles the usage of the wand.
-     */
-    @SubscribeEvent
-    public void playerInteract(PlayerInteractEvent event)
-    {
-        if (event.action == Action.RIGHT_CLICK_AIR)
-            return; // nothing here. dont care if they hit air.
-
-        // check for item.
-        if (event.entityPlayer.getCurrentEquippedItem() != null && event.entityPlayer.getCurrentEquippedItem().getItem() != WAND_ITEM)
-            return; // not holding the wand? dont care.
-
-        Selection select = getSelection(event.entityPlayer.getUniqueID());
-        Pos vec = new Pos(event.x, event.y, event.z);
-
-        if (event.action == Action.LEFT_CLICK_BLOCK)
-            select.setPointOne(vec);
-        else if (event.action == Action.RIGHT_CLICK_BLOCK)
-            select.setPointTwo(vec);
-
-        // DEBUG CODE HERE.
-        if (Creation.isDevEnv())
-            event.entityPlayer.addChatComponentMessage(new ChatComponentText(("selection: " + select)));
-
-        // we did stuff, cancel it.
-        event.setCanceled(true);
     }
 
     // ===========================================

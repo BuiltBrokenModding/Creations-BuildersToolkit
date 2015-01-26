@@ -4,6 +4,7 @@ import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
 import com.builtbroken.mc.lib.helper.NBTUtility;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
 
@@ -27,29 +28,35 @@ public class CommandSave extends SubCommand
     @Override
     public boolean processCommand(ICommandSender user, String[] args)
     {
-        String username = user.getCommandSenderName();
-        Schematic sch = SelectionHandler.getSchematic(username);
-
-        if (sch != null)
+        if(user instanceof EntityPlayer)
         {
-            NBTTagCompound tag = new NBTTagCompound();
-            sch.save(tag);
+            Schematic sch = SelectionHandler.getSchematic(((EntityPlayer) user).getUniqueID());
 
-            File save = new File(SCHEMATICS_FOLDER, sch.getName() + ".dat");
-            if (!save.exists())
+            if (sch != null)
             {
-                save.mkdirs();
-                NBTUtility.saveData(save, tag);
-                user.addChatMessage(new ChatComponentText("Saved Schematic to " + save.getAbsolutePath()));
+                NBTTagCompound tag = new NBTTagCompound();
+                sch.save(tag);
+
+                File save = new File(SCHEMATICS_FOLDER, sch.getName() + ".dat");
+                if (!save.exists())
+                {
+                    save.mkdirs();
+                    NBTUtility.saveData(save, tag);
+                    user.addChatMessage(new ChatComponentText("Saved Schematic to " + save.getAbsolutePath()));
+                }
+                else
+                {
+                    user.addChatMessage(new ChatComponentText("Save already exists with that name"));
+                }
             }
             else
             {
-                user.addChatMessage(new ChatComponentText("Save already exists with that name"));
+                user.addChatMessage(new ChatComponentText("No schematic loaded to save"));
             }
         }
         else
         {
-            user.addChatMessage(new ChatComponentText("No schematic loaded to save"));
+            user.addChatMessage(new ChatComponentText("Need to be a player to use this command"));
         }
         return true;
     }

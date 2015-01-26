@@ -1,8 +1,11 @@
 package com.builtbroken.creation;
 
+import com.builtbroken.creation.content.ItemGlove;
 import com.builtbroken.creation.selection.commands.CommandSchematic;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
+import com.builtbroken.mc.lib.mod.ModCreativeTab;
+import com.sun.java.browser.plugin2.DOM;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -17,29 +20,31 @@ import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.classloading.FMLForgePlugin;
 
 /**
  * Created by robert on 10/1/2014.
  */
 
-@Mod(name = "Creation Mod", modid = Creation.MODID, version = "@VERSION@")
+@Mod(name = "Creations: Builder's Toolkit", modid = Creation.DOMAIN, version = "@VERSION@")
 public class Creation extends AbstractMod
 {
-    public static final String MODID = "creations";
+    public static final String DOMAIN = "creationsbt";
+    public static final String PREFIX = DOMAIN + ":";
 
     @SidedProxy(clientSide = "com.builtbroken.creation.client.ClientProxy", serverSide = "com.builtbroken.creation.CommonProxy")
     public static CommonProxy proxy;
 
-    @Instance(MODID)
+    @Instance(DOMAIN)
     public static Creation INSTANCE;
 
-    public static Item wand;
-    public static CreativeTabs creativeTab;
+    public static ModCreativeTab creativeTab;
+    public static Item glove;
 
     public Creation()
     {
-        super(MODID);
+        super(DOMAIN);
     }
 
     @EventHandler
@@ -47,20 +52,11 @@ public class Creation extends AbstractMod
     {
         super.preInit(e);
         // creative tab
-        creativeTab = new CreativeTabs(MODID)
-        {
-            @Override
-            public Item getTabIconItem()
-            {
-                return wand;
-            }
-        };
+        creativeTab = new ModCreativeTab(DOMAIN);
         getManager().setTab(creativeTab);
 
-
-        wand = new Item().setNoRepair().setMaxStackSize(1).setMaxDamage(0).setTextureName(MODID + ":wand").setUnlocalizedName("CreationWand");
-        wand.setCreativeTab(creativeTab);
-        GameRegistry.registerItem(wand, MODID + ":wand");
+        glove = getManager().newItem(ItemGlove.class);
+        creativeTab.itemStack = new ItemStack(glove);
 
     }
 

@@ -4,6 +4,7 @@ import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class CommandPaste extends SubCommand
     @Override
     public boolean processCommand(ICommandSender user, String[] args)
     {
-        if (user.getEntityWorld() != null)
+        if (user.getEntityWorld() != null && user instanceof EntityPlayer)
         {
             Pos vec = null;
             if (hasArg(args, 0))
@@ -57,7 +58,7 @@ public class CommandPaste extends SubCommand
 
             if (vec != null)
             {
-                Schematic sch = SelectionHandler.getSchematic(user.getCommandSenderName());
+                Schematic sch = SelectionHandler.getSchematic(((EntityPlayer) user).getUniqueID());
                 if (sch != null)
                 {
                     long time = System.nanoTime();
@@ -74,7 +75,10 @@ public class CommandPaste extends SubCommand
             {
                 user.addChatMessage(new ChatComponentText("Failed to get a location to paste to"));
             }
-
+        }
+        else
+        {
+            user.addChatMessage(new ChatComponentText("Need to be a player and in world to use this command"));
         }
         return true;
     }
