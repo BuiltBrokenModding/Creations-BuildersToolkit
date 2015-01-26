@@ -1,4 +1,4 @@
-package com.builtbroken.creation.commands;
+package com.builtbroken.creation.selection.commands;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;

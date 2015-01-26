@@ -20,10 +20,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.IFluidBlock;
-import com.builtbroken.creation.vec.Cube;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.builtbroken.creation.selection.Selection;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
@@ -73,23 +70,23 @@ public class Schematic
     /** Loads the selection from the world
      * 
      * @param world - world to load from
-     * @param cube - area to load from */
-    public Schematic load(World world, Cube cube)
+     * @param selection - area to load from */
+    public Schematic load(World world, Selection selection)
     {
         blocks = new TreeMap<Pos, BlockMeta>();
-        size = cube.getSize();
-        center = new Pos(cube.getXLength() / 2, 0, cube.getYLength() / 2);
+        size = selection.getSize();
+        center = new Pos(selection.getXLength() / 2, 0, selection.getYLength() / 2);
 
-        for (int y = cube.getLowPoint().yi(); y <= cube.getHighPoint().yi(); y++)
+        for (int y = selection.getLowPoint().yi(); y <= selection.getHighPoint().yi(); y++)
         {
-            for (int x = cube.getLowPoint().xi(); x <= cube.getHighPoint().xi(); x++)
+            for (int x = selection.getLowPoint().xi(); x <= selection.getHighPoint().xi(); x++)
             {
-                for (int z = cube.getLowPoint().zi(); z <= cube.getHighPoint().zi(); z++)
+                for (int z = selection.getLowPoint().zi(); z <= selection.getHighPoint().zi(); z++)
                 {
                     Pos vec = new Pos(x, y, z);
                     Block block = vec.getBlock(world);
                     System.out.println(vec);
-                    vec = vec.sub(cube.getLowPoint());
+                    vec = vec.sub(selection.getLowPoint());
 
                     if (block != null && !block.isAir(world, x, y, z) && !(block instanceof IFluidBlock))
                     {

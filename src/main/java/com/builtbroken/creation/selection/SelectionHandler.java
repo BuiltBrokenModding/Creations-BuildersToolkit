@@ -1,7 +1,7 @@
-package com.builtbroken.creation;
+package com.builtbroken.creation.selection;
 
+import com.builtbroken.creation.Creation;
 import com.builtbroken.creation.schematic.Schematic;
-import com.builtbroken.creation.vec.Cube;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.google.common.collect.Maps;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -22,7 +22,7 @@ public final class SelectionHandler
     public static final SelectionHandler INSTANCE = new SelectionHandler();
     private static final Item WAND_ITEM = Creation.wand;
 
-    private final HashMap<UUID, Cube> selections = Maps.newHashMap();
+    private final HashMap<UUID, Selection> selections = Maps.newHashMap();
     private final HashMap<UUID, Schematic> schematics = Maps.newHashMap();
 
     private SelectionHandler()
@@ -33,13 +33,13 @@ public final class SelectionHandler
      * gets the selection of the player, or creates one if none exists.
      * This is mainly so we dont have to deal with NPEs later.
      */
-    public static Cube getSelection(UUID id)
+    public static Selection getSelection(UUID id)
     {
-        Cube out = INSTANCE.selections.get(id);
+        Selection out = INSTANCE.selections.get(id);
 
         if (out == null)
         {
-            out = new Cube(null, null);
+            out = new Selection(null, null);
             INSTANCE.selections.put(id, out);
         }
 
@@ -76,10 +76,10 @@ public final class SelectionHandler
      */
     private void clearSelection(UUID id)
     {
-        Cube select = selections.get(id);
+        Selection select = selections.get(id);
         if (select == null)
         {
-            select = new Cube(null, null);
+            select = new Selection(null, null);
             selections.put(id, select);
         }
         else
@@ -115,7 +115,7 @@ public final class SelectionHandler
         if (event.entityPlayer.getCurrentEquippedItem() != null && event.entityPlayer.getCurrentEquippedItem().getItem() != WAND_ITEM)
             return; // not holding the wand? dont care.
 
-        Cube select = getSelection(event.entityPlayer.getUniqueID());
+        Selection select = getSelection(event.entityPlayer.getUniqueID());
         Pos vec = new Pos(event.x, event.y, event.z);
 
         if (event.action == Action.LEFT_CLICK_BLOCK)

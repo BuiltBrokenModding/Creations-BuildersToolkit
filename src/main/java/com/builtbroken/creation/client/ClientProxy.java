@@ -1,7 +1,6 @@
 package com.builtbroken.creation.client;
 
 import com.builtbroken.creation.CommonProxy;
-import com.builtbroken.creation.SelectionHandler;
 import net.minecraftforge.common.MinecraftForge;
 
 /**

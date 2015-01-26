@@ -1,7 +1,7 @@
 package com.builtbroken.creation.client;
 
-import com.builtbroken.creation.SelectionHandler;
-import com.builtbroken.creation.vec.Cube;
+import com.builtbroken.creation.selection.SelectionHandler;
+import com.builtbroken.creation.selection.Selection;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -33,7 +33,7 @@ public class RenderSelection
         if (player == null) // ya never know.
             return;
 
-        Cube cube = SelectionHandler.getSelection(player.getUniqueID());
+        Selection selection = SelectionHandler.getSelection(player.getUniqueID());
 
         GL11.glPushMatrix();
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
@@ -47,9 +47,9 @@ public class RenderSelection
         boolean render1 = false;
 
         // render p1
-        if (cube.getPointOne() != null)
+        if (selection.getPointOne() != null)
         {
-            Pos vec1 = cube.getPointOne();
+            Pos vec1 = selection.getPointOne();
             GL11.glTranslated(vec1.xf() - RenderManager.renderPosX, vec1.yf() + 1 - RenderManager.renderPosY, vec1.zf() - RenderManager.renderPosZ);
             GL11.glScalef(1.0F, -1.0F, -1.0F);
             GL11.glColor3f(255, 0, 0);
@@ -58,10 +58,10 @@ public class RenderSelection
         }
 
         // render p2
-        if (cube.getPointTwo() != null)
+        if (selection.getPointTwo() != null)
         {
-            Pos p1 = cube.getPointOne();
-            Pos p2 = cube.getPointTwo();
+            Pos p1 = selection.getPointOne();
+            Pos p2 = selection.getPointTwo();
 
             if (render1)
             {
@@ -81,11 +81,11 @@ public class RenderSelection
             renderBlockBox(tess);
         }
 
-        if (cube.isValid())
+        if (selection.isValid())
         {
-            float x = cube.getLowPoint().xf() - cube.getPointTwo().xf();
-            float y = cube.getLowPoint().yf() - cube.getPointTwo().yf();
-            float z = (float) (cube.getLowPoint().zf() - cube.getPointTwo().zf()) - 1;
+            float x = selection.getLowPoint().xf() - selection.getPointTwo().xf();
+            float y = selection.getLowPoint().yf() - selection.getPointTwo().yf();
+            float z = (float) (selection.getLowPoint().zf() - selection.getPointTwo().zf()) - 1;
 
             // translate to the low point..
             GL11.glTranslated(x, y, z);
@@ -93,7 +93,7 @@ public class RenderSelection
             GL11.glScalef(1.0F, -1.0F, -1.0F);
             GL11.glColor3f(0, 5, 100);
 
-            renderBlockBoxTo(tess, new Pos(cube.getXLength(), -cube.getYLength(), -cube.getZLength()));
+            renderBlockBoxTo(tess, new Pos(selection.getXLength(), -selection.getYLength(), -selection.getZLength()));
         }
 
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);

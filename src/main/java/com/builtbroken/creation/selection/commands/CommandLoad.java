@@ -1,6 +1,6 @@
-package com.builtbroken.creation.commands;
+package com.builtbroken.creation.selection.commands;
 
-import com.builtbroken.creation.SelectionHandler;
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;

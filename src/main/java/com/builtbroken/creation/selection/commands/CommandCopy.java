@@ -1,8 +1,8 @@
-package com.builtbroken.creation.commands;
+package com.builtbroken.creation.selection.commands;
 
-import com.builtbroken.creation.SelectionHandler;
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
-import com.builtbroken.creation.vec.Cube;
+import com.builtbroken.creation.selection.Selection;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
@@ -33,12 +33,12 @@ public class CommandCopy extends SubCommand
         }
         if (icommandsender.getEntityWorld() != null && icommandsender instanceof EntityPlayer)
         {
-            Cube cube = SelectionHandler.getSelection(((EntityPlayer) icommandsender).getUniqueID());
-            if (cube != null && cube.isValid())
+            Selection selection = SelectionHandler.getSelection(((EntityPlayer) icommandsender).getUniqueID());
+            if (selection != null && selection.isValid())
             {
                 Schematic sch = new Schematic();
                 sch.setName(name);
-                sch.load(icommandsender.getEntityWorld(), cube);
+                sch.load(icommandsender.getEntityWorld(), selection);
                 SelectionHandler.setSchematic(((EntityPlayer) icommandsender).getUniqueID(), sch);
                 icommandsender.addChatMessage(new ChatComponentText("Selection loaded into buffer"));
             }

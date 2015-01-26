@@ -1,4 +1,4 @@
-package com.builtbroken.creation.commands;
+package com.builtbroken.creation.selection.commands;
 
 import java.io.File;
 import java.util.List;
@@ -38,7 +38,7 @@ public class CommandLS extends SubCommand
         }
         for(int i = page * page_limit; i < files.length && i < page * page_limit + page_limit; i++)
         {
-            user.addChatMessage(new ChatComponentText("#" + i +"  " + files[i].getName()));
+            user.addChatMessage(new ChatComponentText("#" + i + "  " + files[i].getName()));
         }
         
         return true;

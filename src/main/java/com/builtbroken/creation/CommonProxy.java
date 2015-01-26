@@ -1,10 +1,7 @@
 package com.builtbroken.creation;
 
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
-import cpw.mods.fml.common.network.IGuiHandler;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 /**

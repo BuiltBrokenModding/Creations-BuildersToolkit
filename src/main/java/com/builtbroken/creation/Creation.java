@@ -1,6 +1,6 @@
 package com.builtbroken.creation;
 
-import com.builtbroken.creation.commands.CommandSchematic;
+import com.builtbroken.creation.selection.commands.CommandSchematic;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
 import cpw.mods.fml.common.FMLCommonHandler;

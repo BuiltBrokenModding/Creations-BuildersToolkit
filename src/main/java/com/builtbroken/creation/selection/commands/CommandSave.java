@@ -1,8 +1,8 @@
-package com.builtbroken.creation.commands;
+package com.builtbroken.creation.selection.commands;
 
-import com.builtbroken.creation.NBTUtility;
-import com.builtbroken.creation.SelectionHandler;
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
+import com.builtbroken.mc.lib.helper.NBTUtility;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;

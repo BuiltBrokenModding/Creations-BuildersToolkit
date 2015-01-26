@@ -1,4 +1,4 @@
-package com.builtbroken.creation.vec;
+package com.builtbroken.creation.selection;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,14 +13,14 @@ import com.builtbroken.creation.schematic.Schematic;
  * 
  * @author Darkguardsman
  */
-public class Cube
+public class Selection
 {
     private Pos pointOne; // left click
     private Pos pointTwo; // right click
     private Pos lowPoint;
     private Pos highPoint;   
 
-    public Cube(Pos one, Pos two)
+    public Selection(Pos one, Pos two)
     {
         pointOne = one;
         pointTwo = two;
