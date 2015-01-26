@@ -61,7 +61,6 @@ processResources {
 }
 
 dependencies {
-    compile 'org.projectlombok:lombok:1.14.8'
     compile 'com.google.gag:gag:1.0.1'
     testCompile 'junit:junit:4.11'
 }
