@@ -1,12 +1,13 @@
-package shadowteam.creation.commands;
+package com.builtbroken.creation.commands;
+
+import com.builtbroken.creation.SelectionHandler;
+import com.builtbroken.creation.schematic.Schematic;
+import com.builtbroken.creation.vec.Cube;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
 
 import java.util.List;
-
-import shadowteam.creation.SelectionHandler;
-import shadowteam.creation.schematic.Schematic;
-import shadowteam.creation.vec.Cube;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatMessageComponent;
 
 public class CommandCopy extends SubCommand
 {
@@ -25,31 +26,30 @@ public class CommandCopy extends SubCommand
     @Override
     public boolean processCommand(ICommandSender icommandsender, String[] args)
     {
-        String username = icommandsender.getCommandSenderName();
         String name = "schematic" + System.currentTimeMillis();
         if (args != null && args.length > 0 && args[0] != null)
         {
             name = args[0];
         }
-        if (icommandsender.getEntityWorld() != null)
+        if (icommandsender.getEntityWorld() != null && icommandsender instanceof EntityPlayer)
         {
-            Cube cube = SelectionHandler.getSelection(username);
+            Cube cube = SelectionHandler.getSelection(((EntityPlayer) icommandsender).getUniqueID());
             if (cube != null && cube.isValid())
             {
                 Schematic sch = new Schematic();
                 sch.setName(name);
                 sch.load(icommandsender.getEntityWorld(), cube);
-                SelectionHandler.setSchematic(username, sch);
-                icommandsender.sendChatToPlayer(ChatMessageComponent.createFromText("Selection loaded into buffer"));
+                SelectionHandler.setSchematic(((EntityPlayer) icommandsender).getUniqueID(), sch);
+                icommandsender.addChatMessage(new ChatComponentText("Selection loaded into buffer"));
             }
             else
             {
-                icommandsender.sendChatToPlayer(ChatMessageComponent.createFromText("Invalid selection"));
+                icommandsender.addChatMessage(new ChatComponentText("Invalid selection"));
             }
         }
         else
         {
-            icommandsender.sendChatToPlayer(ChatMessageComponent.createFromText("Invalid world"));
+            icommandsender.addChatMessage(new ChatComponentText("Invalid world"));
 
         }
         return true;

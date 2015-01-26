@@ -1,11 +1,12 @@
-package shadowteam.creation.vec;
+package com.builtbroken.creation.vec;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import com.builtbroken.mc.lib.transform.vector.Pos;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
-import shadowteam.creation.schematic.Schematic;
+import com.builtbroken.creation.schematic.Schematic;
 
 /**
  * 3D box area
@@ -14,12 +15,12 @@ import shadowteam.creation.schematic.Schematic;
  */
 public class Cube
 {
-    private Vec pointOne; // left click
-    private Vec pointTwo; // right click
-    private Vec lowPoint;
-    private Vec highPoint;   
+    private Pos pointOne; // left click
+    private Pos pointTwo; // right click
+    private Pos lowPoint;
+    private Pos highPoint;   
 
-    public Cube(Vec one, Vec two)
+    public Cube(Pos one, Pos two)
     {
         pointOne = one;
         pointTwo = two;
@@ -66,15 +67,15 @@ public class Cube
         return highPoint.zi() - lowPoint.zi() + 1;
     }
     
-    /** Gets the size of the cube as a Vec */
-    public Vec getSize()
+    /** Gets the size of the cube as a Pos */
+    public Pos getSize()
     {
-        return new Vec(getXLength(), getYLength(), getZLength());
+        return new Pos(getXLength(), getYLength(), getZLength());
     }
     
     /**
      * Returns whether or not this Cube object is a valid cube.
-     * Checks to ensure that neither internal vectors are null, and all Y values are above zero.
+     * Checks to ensure that neither internal Postors are null, and all Y values are above zero.
      * @return
      */
     public boolean isValid()
@@ -90,8 +91,8 @@ public class Cube
         if (!isValid())
             return; // pointless if both arnt set.
         
-        lowPoint = new Vec(Math.min(pointOne.xi(), pointTwo.xi()), Math.min(pointOne.yi(), pointTwo.yi()), Math.min(pointOne.zi(), pointTwo.zi()));
-        highPoint = new Vec(Math.max(pointOne.xi(), pointTwo.xi()), Math.max(pointOne.yi(), pointTwo.yi()), Math.max(pointOne.zi(), pointTwo.zi()));
+        lowPoint = new Pos(Math.min(pointOne.xi(), pointTwo.xi()), Math.min(pointOne.yi(), pointTwo.yi()), Math.min(pointOne.zi(), pointTwo.zi()));
+        highPoint = new Pos(Math.max(pointOne.xi(), pointTwo.xi()), Math.max(pointOne.yi(), pointTwo.yi()), Math.max(pointOne.zi(), pointTwo.zi()));
     }
     
     ////////////////////////////////////////////
@@ -105,12 +106,12 @@ public class Cube
      * @param meta - meta to place as
      * @return list of location that were changed, used for Undo commands
      */
-    public List<Vec> replaceBlocks(World world, Block block, int meta)
+    public List<Pos> replaceBlocks(World world, Block block, int meta)
     {
-        List<Vec> list = getBlockLocations(world, block, meta);
-        for(Vec vec : list)
+        List<Pos> list = getBlockLocations(world, block, meta);
+        for(Pos Pos : list)
         {
-            vec.setBlock(world, block, meta);
+            Pos.setBlock(world, block, meta);
         }
         return list;
     }
@@ -119,7 +120,7 @@ public class Cube
      *  
      * @param world - world to search in
      */
-    public List<Vec> getBlockLocations(World world)
+    public List<Pos> getBlockLocations(World world)
     {
         return getBlockLocations(world, null, -1, -1);
     }
@@ -130,7 +131,7 @@ public class Cube
      * @param block - block instance to match against
      * @return list of blocks, never null but can be empty
      */
-    public List<Vec> getBlockLocations(World world, Block block)
+    public List<Pos> getBlockLocations(World world, Block block)
     {
         return getBlockLocations(world, block, -1, -1);
     }
@@ -142,7 +143,7 @@ public class Cube
      * @param meta - meta value to match
      * @return list of blocks, never null but can be empty
      */
-    public List<Vec> getBlockLocations(World world, Block block, int meta)
+    public List<Pos> getBlockLocations(World world, Block block, int meta)
     {
         return getBlockLocations(world, block, meta, -1);
     }
@@ -156,9 +157,9 @@ public class Cube
      *                  If zero or less will not limit size
      * @return list of blocks, never null but can be empty
      */
-    public List<Vec> getBlockLocations(World world, Block block, int meta, int size)
+    public List<Pos> getBlockLocations(World world, Block block, int meta, int size)
     {
-        List<Vec> list = new LinkedList<Vec>();
+        List<Pos> list = new LinkedList<Pos>();
         for(int y = lowPoint.yi(); y <= highPoint.yi(); y++ )
         {
             for(int x = lowPoint.xi(); x <= highPoint.xi(); x++ )
@@ -168,12 +169,12 @@ public class Cube
                     if(size > 0&& list.size() > size)
                         return list;
                     
-                    Vec vec = new Vec(x, y, z);
-                    Block b = vec.getBlock(world);
-                    int m = vec.getBlockMeta(world);
+                    Pos Pos = new Pos(x, y, z);
+                    Block b = Pos.getBlock(world);
+                    int m = Pos.getBlockMetadata(world);
                     if(block == null || b == block && (meta == -1 || m == meta))
                     {
-                        list.add(vec);
+                        list.add(Pos);
                     }
                 }
             }
@@ -186,44 +187,44 @@ public class Cube
     ///             & Setters                ///
     ////////////////////////////////////////////
     
-    public void setPointOne(Vec vec)
+    public void setPointOne(Pos Pos)
     {
-        pointOne = vec;
+        pointOne = Pos;
         recalc();
     }
     
-    public void setPointTwo(Vec vec)
+    public void setPointTwo(Pos Pos)
     {
-        pointTwo = vec;
+        pointTwo = Pos;
         recalc();
     }    
     
-    public Vec getLowPoint()
+    public Pos getLowPoint()
     {
         return lowPoint;
     }
 
-    public void setLowPoint(Vec lowPoint)
+    public void setLowPoint(Pos lowPoint)
     {
         this.lowPoint = lowPoint;
     }
 
-    public Vec getHighPoint()
+    public Pos getHighPoint()
     {
         return highPoint;
     }
 
-    public void setHighPoint(Vec highPoint)
+    public void setHighPoint(Pos highPoint)
     {
         this.highPoint = highPoint;
     }
 
-    public Vec getPointOne()
+    public Pos getPointOne()
     {
         return pointOne;
     }
 
-    public Vec getPointTwo()
+    public Pos getPointTwo()
     {
         return pointTwo;
     }

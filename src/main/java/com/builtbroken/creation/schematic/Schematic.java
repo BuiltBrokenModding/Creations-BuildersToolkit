@@ -1,4 +1,4 @@
-package shadowteam.creation.schematic;
+package com.builtbroken.creation.schematic;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,13 +14,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.builtbroken.mc.lib.transform.vector.Pos;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.IFluidBlock;
-import shadowteam.creation.vec.Cube;
-import shadowteam.creation.vec.Vec;
+import com.builtbroken.creation.vec.Cube;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -38,11 +38,11 @@ public class Schematic
 
     private String name = "Schematic";
 
-    private TreeMap<Vec, BlockMeta> blocks;
+    private TreeMap<Pos, BlockMeta> blocks;
 
-    private Vec size;
+    private Pos size;
 
-    private Vec center;
+    private Pos center;
 
     public Schematic()
     {
@@ -54,12 +54,12 @@ public class Schematic
         load(file);
     }
     
-    public void build(World world, Vec center)
+    public void build(World world, Pos center)
     {
         System.out.println("Paste debug");
-        for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
+        for(Entry<Pos, BlockMeta> entry : blocks.entrySet())
         {
-            Vec vec = entry.getKey().clone().add(center);
+            Pos vec = entry.getKey().clone().add(center);
             System.out.println(vec + "  " + entry.getValue());
             vec.setBlock(world, entry.getValue().getBlock(), entry.getValue().getMeta());
         }
@@ -76,9 +76,9 @@ public class Schematic
      * @param cube - area to load from */
     public Schematic load(World world, Cube cube)
     {
-        blocks = new TreeMap<Vec, BlockMeta>();
+        blocks = new TreeMap<Pos, BlockMeta>();
         size = cube.getSize();
-        center = new Vec(cube.getXLength() / 2, 0, cube.getYLength() / 2);
+        center = new Pos(cube.getXLength() / 2, 0, cube.getYLength() / 2);
 
         for (int y = cube.getLowPoint().yi(); y <= cube.getHighPoint().yi(); y++)
         {
@@ -86,14 +86,14 @@ public class Schematic
             {
                 for (int z = cube.getLowPoint().zi(); z <= cube.getHighPoint().zi(); z++)
                 {
-                    Vec vec = new Vec(x, y, z);
+                    Pos vec = new Pos(x, y, z);
                     Block block = vec.getBlock(world);
                     System.out.println(vec);
                     vec = vec.sub(cube.getLowPoint());
 
-                    if (block != null && !block.isAirBlock(world, x, y, z) && !(block instanceof IFluidBlock))
+                    if (block != null && !block.isAir(world, x, y, z) && !(block instanceof IFluidBlock))
                     {
-                        BlockMeta blockMeta = new BlockMeta(block, vec.getBlockMeta(world));
+                        BlockMeta blockMeta = new BlockMeta(block, vec.getBlockMetadata(world));
                         blocks.put(vec, blockMeta);
                     }
                 }
@@ -108,19 +108,14 @@ public class Schematic
      * @return list of missing blocks if they are not present in this instance of the game */
     public List<MissingBlock> load(NBTTagCompound nbt)
     {
-        blocks = new TreeMap<Vec, BlockMeta>();
+        blocks = new TreeMap<Pos, BlockMeta>();
         
         //Save size
-        this.size = new Vec(0, 0, 0);
-        size.x = nbt.getShort("sizeX");
-        size.y = nbt.getShort("sizeY");
-        size.z = nbt.getShort("sizeZ");
+        this.size = new Pos(0, 0, 0);
+        size = new Pos(nbt.getShort("sizeX"), nbt.getShort("sizeY"), nbt.getShort("sizeZ"));
 
         //Save center
-        this.center = new Vec(0, 0, 0);
-        center.x = nbt.getShort("centerX");
-        center.y = nbt.getShort("centerY");
-        center.z = nbt.getShort("centerZ");
+        this.center = new Pos(nbt.getShort("centerX"), nbt.getShort("centerY"), nbt.getShort("centerZ"));
         
         HashMap<Integer, MissingBlock> missingBlocks = new HashMap<Integer, MissingBlock>();
         byte[] loadedIDs = nbt.getByteArray("Blocks");
@@ -146,7 +141,7 @@ public class Schematic
             Block block = GameRegistry.findBlock(modName, blockName);
             if (block != null)
             {
-                idToNewId.put(blockId, block.blockID);
+                idToNewId.put(blockId, Block.getIdFromBlock(block));
             }
             else
             {
@@ -155,7 +150,7 @@ public class Schematic
                     block = GameRegistry.findBlock(mod.getModId(), blockName);
                     if (block != null)
                     {
-                        idToNewId.put(blockId, block.blockID);
+                        idToNewId.put(blockId, Block.getIdFromBlock(block));
                         break;
                     }
                 }
@@ -174,21 +169,23 @@ public class Schematic
             {
                 for (int x = 0; x < size.xi(); x++)
                 {
-                    Vec vec = new Vec(x, y, z);
+                    Pos vec = new Pos(x, y, z);
                     int id = loadedIDs[index];
                     int meta = metaLoaded[index];
+                    
+                    System.out.println("ID: " + id +"  Meta:"+meta);
 
                     if (idToNewId.containsKey(id))
                     {
-                        blocks.put(vec, new BlockMeta(Block.blocksList[idToNewId.get(id)], meta));                       
+                        blocks.put(vec, new BlockMeta(Block.getBlockById(idToNewId.get(id)), meta));
                     }
                     else if (missingBlocks.containsKey(id))
                     {
                         missingBlocks.get(id).add(vec);
                     }
-                    else if(Block.blocksList[id] != null)
+                    else if(Block.getBlockById(id) != null)
                     {
-                        blocks.put(vec, new BlockMeta(Block.blocksList[id], meta));
+                        blocks.put(vec, new BlockMeta(Block.getBlockById(id), meta));
                     }
                     index++;
 
@@ -223,7 +220,7 @@ public class Schematic
             {
                 blockList.add(block.getBlock());
             }
-            setIDs[index] = (byte) (block.getBlock().blockID & 0xff);
+            setIDs[index] = (byte) (Block.getIdFromBlock(block.getBlock()) & 0xff);
             setMetas[index] = (byte) (block.getMeta() & 0xff);
             
             index++;
@@ -240,12 +237,12 @@ public class Schematic
             UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(block);
             if(id != null)
             {
-                idTag.setString("s" + o, id.modId + ":" + id.name + ":" + block.blockID);
+                idTag.setString("s" + o, id.modId + ":" + id.name + ":" + Block.getIdFromBlock(block));
                
             }
             else
             {
-                idTag.setString("s" + o, "Minecraft:block:" + block.blockID);
+                idTag.setString("s" + o, "Minecraft:block:" + Block.getIdFromBlock(block));
             }
             o++;
         }
@@ -293,24 +290,24 @@ public class Schematic
     public Schematic rotateClockwise()
     {
         Schematic sch = clone();
-        TreeMap<Vec, BlockMeta> map = new TreeMap<Vec, BlockMeta>();
-        for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
+        TreeMap<Pos, BlockMeta> map = new TreeMap<Pos, BlockMeta>();
+        for(Entry<Pos, BlockMeta> entry : blocks.entrySet())
         {
-            map.put(new Vec(entry.getKey().z, entry.getKey().y, size.xi() - entry.getKey().x), entry.getValue());
+            map.put(new Pos(entry.getKey().z(), entry.getKey().y(), size.xi() - entry.getKey().x()), entry.getValue());
         }
-        size = new Vec(size.z, size.y, size.x);
+        size = new Pos(size.z(), size.y(), size.x());
         return sch;
     }
     
     public Schematic rotateCounterClockwise()
     {
         Schematic sch = clone();
-        TreeMap<Vec, BlockMeta> map = new TreeMap<Vec, BlockMeta>();
-        for(Entry<Vec, BlockMeta> entry : blocks.entrySet())
+        TreeMap<Pos, BlockMeta> map = new TreeMap<Pos, BlockMeta>();
+        for(Entry<Pos, BlockMeta> entry : blocks.entrySet())
         {
-            map.put(new Vec(size.zi() - entry.getKey().z, entry.getKey().y, entry.getKey().x), entry.getValue());
+            map.put(new Pos(size.zi() - entry.getKey().z(), entry.getKey().y(), entry.getKey().x()), entry.getValue());
         }
-        size = new Vec(size.z, size.y, size.x);
+        size = new Pos(size.z(), size.y(), size.x());
         return sch;
     }
 
@@ -329,27 +326,27 @@ public class Schematic
         this.name = name;
     }
 
-    public Vec getSize()
+    public Pos getSize()
     {
         return size;
     }
 
-    public void setSize(Vec size)
+    public void setSize(Pos size)
     {
         this.size = size;
     }
 
-    public Vec getCenter()
+    public Pos getCenter()
     {
         return center;
     }
 
-    public void setCenter(Vec center)
+    public void setCenter(Pos center)
     {
         this.center = center;
     }
 
-    public Map<Vec, BlockMeta> getBlocks()
+    public Map<Pos, BlockMeta> getBlocks()
     {
         return Collections.unmodifiableMap(blocks);
     }
@@ -357,7 +354,7 @@ public class Schematic
     public Schematic clone()
     {
         Schematic schematic = new Schematic();
-        schematic.blocks = (TreeMap<Vec, BlockMeta>) blocks.clone();
+        schematic.blocks = (TreeMap<Pos, BlockMeta>) blocks.clone();
         schematic.size = size;
         schematic.center = center;
         schematic.name = name;

@@ -1,10 +1,10 @@
-package shadowteam.creation.commands;
+package com.builtbroken.creation.commands;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import shadowteam.creation.NBTUtility;
+import com.builtbroken.creation.NBTUtility;
 import net.minecraft.command.ICommandSender;
 
 /**

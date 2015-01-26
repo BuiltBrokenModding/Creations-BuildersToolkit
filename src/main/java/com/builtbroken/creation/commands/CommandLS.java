@@ -1,11 +1,10 @@
-package shadowteam.creation.commands;
+package com.builtbroken.creation.commands;
 
 import java.io.File;
 import java.util.List;
 
-import shadowteam.creation.NBTUtility;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatMessageComponent;
+import net.minecraft.util.ChatComponentText;
 
 public class CommandLS extends SubCommand
 {
@@ -34,12 +33,12 @@ public class CommandLS extends SubCommand
         }
         if(page < 0)
         {
-            user.sendChatToPlayer(ChatMessageComponent.createFromText("Invalid page number"));
+            user.addChatMessage(new ChatComponentText("Invalid page number"));
             return true;
         }
         for(int i = page * page_limit; i < files.length && i < page * page_limit + page_limit; i++)
         {
-            user.sendChatToPlayer(ChatMessageComponent.createFromText("#" + i +"  " + files[i].getName()));
+            user.addChatMessage(new ChatComponentText("#" + i +"  " + files[i].getName()));
         }
         
         return true;
