@@ -17,8 +17,8 @@ This mod is designed for the creations modpack as a replacement for world edit. 
 
 ## Credits
 
-Abrar - Ex-Developer
-DarkGuardsman - Developer
-Dmod - Developer
-Dragonlord - Dontation/Contributor
-Morton - Asset Developer
+* Abrar - Ex-Developer
+* DarkGuardsman - Developer
+* Dmod - Developer
+* Dragonlord - Dontation/Contributor
+* Morton - Asset Developer
