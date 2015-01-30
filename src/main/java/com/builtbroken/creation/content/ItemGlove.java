@@ -5,11 +5,12 @@ import com.builtbroken.creation.selection.Selection;
 import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
-import com.builtbroken.mc.core.network.IPacketReceiver;
 import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -84,7 +85,7 @@ public class ItemGlove extends Item implements IPacketIDReceiver
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent @SideOnly(Side.CLIENT)
     public void mouseHandler(MouseEvent e)
     {
         if (e.dwheel != 0)
@@ -93,7 +94,7 @@ public class ItemGlove extends Item implements IPacketIDReceiver
             if (player.isSneaking())
             {
                 ItemStack stack = player.getCurrentEquippedItem();
-                if(stack != null && stack.getItem() == this)
+                if (stack != null && stack.getItem() == this)
                 {
                     cycleMode(stack, player, e.dwheel / 120);
                     e.setCanceled(true);
@@ -104,19 +105,20 @@ public class ItemGlove extends Item implements IPacketIDReceiver
 
     /**
      * Causes the mode to cycle
-     * @param stack - itemstack
+     *
+     * @param stack  - itemstack
      * @param player - player
-     * @param delta - change in mode
+     * @param delta  - change in mode
      */
     protected void cycleMode(ItemStack stack, EntityPlayer player, int delta)
     {
         int n = getMode(stack) + delta;
-        if(n > max_mode)
+        if (n > max_mode)
             n = min_mode;
-        if(n < min_mode)
+        if (n < min_mode)
             n = max_mode;
 
-        if(getMode(stack) != n)
+        if (getMode(stack) != n)
         {
             setMode(stack, n);
             Engine.instance.packetHandler.sendToServer(new PacketPlayerItem(player, MODE_PACKET, n));
@@ -125,7 +127,7 @@ public class ItemGlove extends Item implements IPacketIDReceiver
 
     protected int getMode(ItemStack stack)
     {
-        if(stack.getTagCompound() != null)
+        if (stack.getTagCompound() != null)
         {
             return stack.getTagCompound().getInteger("mode");
         }
@@ -134,7 +136,7 @@ public class ItemGlove extends Item implements IPacketIDReceiver
 
     protected void setMode(ItemStack stack, int mode)
     {
-        if(stack.getTagCompound() == null)
+        if (stack.getTagCompound() == null)
             stack.setTagCompound(new NBTTagCompound());
 
         stack.getTagCompound().setInteger("mode", mode);
@@ -143,10 +145,10 @@ public class ItemGlove extends Item implements IPacketIDReceiver
     @Override
     public boolean read(ByteBuf buf, int id, EntityPlayer player, PacketType packet)
     {
-        System.out.println("Packet: " + packet +"   ID: " + id);
-        if(packet instanceof PacketPlayerItem)
+        System.out.println("Packet: " + packet + "   ID: " + id);
+        if (packet instanceof PacketPlayerItem)
         {
-            if(id == MODE_PACKET)
+            if (id == MODE_PACKET)
             {
                 int slot = ((PacketPlayerItem) packet).slotId;
                 ItemStack stack = player.inventory.getStackInSlot(slot);
