@@ -28,6 +28,7 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by robert on 1/25/2015.
@@ -128,31 +129,50 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
                     if (l != null && l.size() > 0 && l.get(0) != null)
                     {
                         Pos pos = l.get(0);
-                        if(pos.distance(new Pos(player)) > 100)
+                        if (pos.distance(new Pos(player)) > 100)
                         {
-                            if (!player.worldObj.isRemote)
+                            Block block = pos.getBlock(player.worldObj);
+                            if (block != null && !pos.isAirBlock(player.worldObj))
                             {
-                                Block block = pos.getBlock(player.worldObj);
-                                if(block != null && !pos.isAirBlock(player.worldObj))
+                                int meta = pos.getBlockMetadata(player.worldObj);
+                                if (!player.worldObj.isRemote)
                                 {
-                                    block.onBlockDestroyedByPlayer(player.worldObj, pos.xi(), pos.yi(), pos.zi(), pos.getBlockMetadata(player.worldObj));
-                                    ArrayList<ItemStack> items =  block.getDrops(player.worldObj, pos.xi(), pos.yi(), pos.zi(), pos.getBlockMetadata(player.worldObj), 0);
+                                    block.onBlockDestroyedByPlayer(player.worldObj, pos.xi(), pos.yi(), pos.zi(), meta);
+                                    ArrayList<ItemStack> items = block.getDrops(player.worldObj, pos.xi(), pos.yi(), pos.zi(), meta, 0);
                                     pos.setBlockToAir(player.worldObj);
-                                    if(!player.capabilities.isCreativeMode)
+                                    if (!player.capabilities.isCreativeMode)
                                     {
-                                        for(ItemStack s : items)
+                                        for (ItemStack s : items)
                                         {
-                                            if(!player.inventory.addItemStackToInventory(s))
+                                            if (!player.inventory.addItemStackToInventory(s))
                                             {
                                                 InventoryUtility.dropItemStack(new Location(player), s);
                                             }
                                         }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                //TODO player visuals and audio effects of removing a block
+                                else
+                                {
+                                    //Center block
+                                    pos = pos.add(0.5);
+
+                                    //Play block sound
+                                    Block.SoundType soundtype = block.stepSound;
+                                    player.playSound(soundtype.getStepResourcePath(), soundtype.getVolume() * 0.5F, soundtype.getPitch() * 0.75F);
+
+                                    //Spawn random particles
+                                    Random rand = player.worldObj.rand;
+                                    for (int i = 0; i < 3 + rand.nextInt(20); i++)
+                                    {
+                                        Pos v = pos.addRandom(rand, 0.5);
+                                        Pos vel = new Pos().addRandom(rand, 0.2);
+                                        if (rand.nextBoolean())
+                                            player.worldObj.spawnParticle("portal", v.x(), v.y(), v.z(), vel.x(), vel.y(), vel.z());
+                                        else
+                                            player.worldObj.spawnParticle("blockcrack_" + Block.getIdFromBlock(block) + "_" + meta, v.x(), v.y(), v.z(), vel.x(), vel.y(), vel.z());
+                                    }
+
+                                }
                             }
                         }
                         else
