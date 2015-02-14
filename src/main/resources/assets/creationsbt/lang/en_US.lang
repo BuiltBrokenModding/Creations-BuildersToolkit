@@ -8,3 +8,5 @@ item.creationsbt:glove.info.delete.noblockdistance.name=No blocks in range
 item.creationsbt:glove.mode.name=Mode
 item.creationsbt:glove.mode.0.name=None
 item.creationsbt:glove.mode.1.name=Area Selection
+item.creationsbt:glove.mode.2.name=Selection Harvest
+item.creationsbt:glove.mode.3.name=Harvest

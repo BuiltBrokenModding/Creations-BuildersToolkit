@@ -244,7 +244,7 @@ public class Selection
                         if (location.distance(pos) <= distance)
                         {
                             Block b = pos.getBlock(location.world());
-                            if (b != null && !pos.isAirBlock(location.world()))
+                            if (b != null && !pos.isAirBlock(location.world()) && pos.getHardness(location.world()) >= 0)
                             {
                                 list.add(pos);
                             }

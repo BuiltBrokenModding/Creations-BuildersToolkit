@@ -35,7 +35,7 @@ import java.util.Random;
  */
 public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostInit
 {
-    protected int max_mode = 2;
+    protected int max_mode = 3;
     protected int max_energy = 10000;
     protected int energy_cost_delete = 5;
 
@@ -63,11 +63,11 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     }
 
     @Override
-    public void onUpdate(ItemStack stack, World  world, Entity entity, int slot, boolean held)
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held)
     {
-        if(entity instanceof EntityPlayer && ((EntityPlayer) entity).getItemInUse() != stack)
+        if (entity instanceof EntityPlayer && ((EntityPlayer) entity).getItemInUse() != stack)
         {
-            if(getEnergy(stack) < max_energy)
+            if (getEnergy(stack) < max_energy)
             {
                 //TODO add different types of regen based on upgrades and location
                 this.setEnergy(stack, Math.min(max_energy, getEnergy(stack) + 10));
@@ -92,7 +92,7 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
         int mode = getMode(stack);
-        if(mode == GloveModes.DELETE.ordinal())
+        if (mode == GloveModes.DELETE.ordinal())
         {
             if (player.capabilities.isCreativeMode || getEnergy(stack) >= energy_cost_delete * 5)
             {
@@ -139,7 +139,7 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     public void onUsingTick(ItemStack stack, EntityPlayer player, int ticks_left)
     {
         int mode = getMode(stack);
-        System.out.println("Using tick - " + ticks_left +" mode: " + mode);
+        System.out.println("Using tick - " + ticks_left + " mode: " + mode);
         if (mode == GloveModes.DELETE.ordinal() && ticks_left > 0)
         {
             Selection select = SelectionHandler.getSelection(player.getUniqueID());
@@ -176,25 +176,7 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
                                 }
                                 else
                                 {
-                                    //Center block
-                                    pos = pos.add(0.5);
-
-                                    //Play block sound
-                                    Block.SoundType soundtype = block.stepSound;
-                                    player.playSound(soundtype.getStepResourcePath(), soundtype.getVolume() * 0.5F, soundtype.getPitch() * 0.75F);
-
-                                    //Spawn random particles
-                                    Random rand = player.worldObj.rand;
-                                    for (int i = 0; i < 3 + rand.nextInt(20); i++)
-                                    {
-                                        Pos v = pos.addRandom(rand, 0.5);
-                                        Pos vel = new Pos().addRandom(rand, 0.2);
-                                        if (rand.nextBoolean())
-                                            player.worldObj.spawnParticle("portal", v.x(), v.y(), v.z(), vel.x(), vel.y(), vel.z());
-                                        else
-                                            player.worldObj.spawnParticle("blockcrack_" + Block.getIdFromBlock(block) + "_" + meta, v.x(), v.y(), v.z(), vel.x(), vel.y(), vel.z());
-                                    }
-
+                                    playBlockBreakAnimation(new Location(player.worldObj, pos.add(0.5)));
                                 }
                             }
                         }
@@ -250,9 +232,57 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
                     handelSelection(stack, player, location);
                     return true;
                 }
+                else if (mode == GloveModes.HARVEST.ordinal())
+                {
+                    if (block.getBlockHardness(world, x, y, z) >= 0)
+                    {
+                        if (player.capabilities.isCreativeMode || consumeEnergy(stack, energy_cost_delete, false))
+                        {
+                            if (!player.worldObj.isRemote)
+                            {
+                                if (!player.capabilities.isCreativeMode)
+                                {
+                                    consumeEnergy(stack, energy_cost_delete, true);
+                                    block.onBlockDestroyedByPlayer(player.worldObj, location.xi(), location.yi(), location.zi(), location.getBlockMetadata());
+                                    ArrayList<ItemStack> items = block.getDrops(player.worldObj, location.xi(), location.yi(), location.zi(), location.getBlockMetadata(), 0);
+                                    if (!player.capabilities.isCreativeMode)
+                                    {
+                                        for (ItemStack s : items)
+                                        {
+                                            if (!player.inventory.addItemStackToInventory(s))
+                                            {
+                                                InventoryUtility.dropItemStack(new Location(player), s);
+                                            }
+                                        }
+                                    }
+                                }
+                                location.setBlockToAir();
+                            }
+                            else
+                            {
+                                playBlockBreakAnimation(location.add(0.5));
+                            }
+                        }
+                    }
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    public void playBlockBreakAnimation(Location pos)
+    {
+        pos.playBlockBreakAnimation();
+
+        //Spawn random particles
+        Random rand = pos.world().rand;
+        for (int i = 0; i < 3 + rand.nextInt(10); i++)
+        {
+            Location v = pos.addRandom(rand, 0.5);
+            Pos vel = new Pos().addRandom(rand, 0.2);
+            v.spawnParticle("portal", vel);
+        }
     }
 
     /**
@@ -352,6 +382,6 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
 
     public static enum GloveModes
     {
-        NONE, SELECTION, DELETE;
+        NONE, SELECTION, DELETE, HARVEST;
     }
 }
