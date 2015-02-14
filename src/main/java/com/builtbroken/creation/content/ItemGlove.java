@@ -63,9 +63,23 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     }
 
     @Override
+    public void onUpdate(ItemStack stack, World  world, Entity entity, int slot, boolean held)
+    {
+        if(entity instanceof EntityPlayer && ((EntityPlayer) entity).getItemInUse() != stack)
+        {
+            if(getEnergy(stack) < max_energy)
+            {
+                //TODO add different types of regen based on upgrades and location
+                this.setEnergy(stack, Math.min(max_energy, getEnergy(stack) + 10));
+            }
+        }
+    }
+
+
+    @Override
     public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack)
     {
-        return true;
+        return false;
     }
 
     @Override
@@ -77,6 +91,14 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
+        int mode = getMode(stack);
+        if(mode == GloveModes.DELETE.ordinal())
+        {
+            if (player.capabilities.isCreativeMode || getEnergy(stack) >= energy_cost_delete * 5)
+            {
+                player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+            }
+        }
         return stack;
     }
 
@@ -114,22 +136,23 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     }
 
     @Override
-    public void onUsingTick(ItemStack stack, EntityPlayer player, int count)
+    public void onUsingTick(ItemStack stack, EntityPlayer player, int ticks_left)
     {
         int mode = getMode(stack);
-        if (mode == GloveModes.DELETE.ordinal())
+        System.out.println("Using tick - " + ticks_left +" mode: " + mode);
+        if (mode == GloveModes.DELETE.ordinal() && ticks_left > 0)
         {
             Selection select = SelectionHandler.getSelection(player.getUniqueID());
 
-            if (select != null && select.isValid() && consumeEnergy(stack, energy_cost_delete * count, false))
+            if (select != null && select.isValid() && (player.capabilities.isCreativeMode || consumeEnergy(stack, energy_cost_delete * ticks_left, false)))
             {
                 List<Pos> l = select.getLocationsWithin(new Location(player), 1, 50);
-                if (count % 5 == 0)
+                if (ticks_left % 5 == 0)
                 {
                     if (l != null && l.size() > 0 && l.get(0) != null)
                     {
                         Pos pos = l.get(0);
-                        if (pos.distance(new Pos(player)) > 100)
+                        if (pos.distance(new Pos(player)) <= 50)
                         {
                             Block block = pos.getBlock(player.worldObj);
                             if (block != null && !pos.isAirBlock(player.worldObj))
@@ -200,9 +223,13 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
                     {
                         player.addChatComponentMessage(new ChatComponentText(LanguageUtility.getLocal(getUnlocalizedName() + ".info.invalidselection.name")));
                     }
+                    player.stopUsingItem();
                 }
-                player.stopUsingItem();
             }
+        }
+        else
+        {
+            player.stopUsingItem();
         }
     }
 
