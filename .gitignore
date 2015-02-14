@@ -19,3 +19,4 @@ run/*
 *.jar
 *.swp
 hs_err_pid*
+*.iml
