@@ -1,6 +1,10 @@
 # items
 item.creationsbt:glove.name=Builder's Glove
 item.creationsbt:glove.info.name=World editor's multi tool
+item.creationsbt:glove.info.noselection.name=No usable selection found
+item.creationsbt:glove.info.invalidselection.name=Invalid selection
+item.creationsbt:glove.info.delete.noblocks.name=No blocks to remove
+item.creationsbt:glove.info.delete.noblockdistance.name=No blocks in range
 item.creationsbt:glove.mode.name=Mode
 item.creationsbt:glove.mode.0.name=None
 item.creationsbt:glove.mode.1.name=Area Selection
