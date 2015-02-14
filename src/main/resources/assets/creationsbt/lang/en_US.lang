@@ -1,6 +1,6 @@
-# keybindings
-key.creation.wandGui=Open Creation Gui
-key.creation.wandMode=Toggle Creation Wand Mode
-
 # items
-item.CreationWand.name=Wand of Creation
+item.creationsbt:glove.name=Builder's Glove
+item.creationsbt:glove.info.name=World editor's multi tool
+item.creationsbt:glove.mode.name=Mode
+item.creationsbt:glove.mode.0.name=None
+item.creationsbt:glove.mode.1.name=Area Selection

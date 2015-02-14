@@ -7,6 +7,7 @@ import com.builtbroken.mc.api.items.IModeItem;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
+import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -14,6 +15,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -36,13 +38,17 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem
     public ItemGlove()
     {
         this.setMaxStackSize(1);
+        this.setCreativeTab(CreativeTabs.tabTools);
+        this.setTextureName(Creation.PREFIX + "glove");
+        this.setUnlocalizedName(Creation.PREFIX + "glove");
     }
 
     @Override @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List lines, boolean b)
     {
         //TODO translate based on mode type
-        lines.add("Mode: " + getMode(stack));
+        lines.add(LanguageUtility.getLocal(getUnlocalizedName() + ".info.name"));
+        lines.add(LanguageUtility.getLocal(getUnlocalizedName() + ".mode.name") +": " + LanguageUtility.getLocal(getUnlocalizedName() + ".mode." + getMode(stack)+ ".name"));
     }
 
     @Override
@@ -60,6 +66,9 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem
                     switch (stack.getItemDamage())
                     {
                         case 0:
+                            //Leave empty to say no mode
+                            break;
+                        case 1:
                             handelSelection(stack, player, location);
                             break;
                     }

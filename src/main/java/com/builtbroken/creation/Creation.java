@@ -27,7 +27,7 @@ import net.minecraftforge.classloading.FMLForgePlugin;
  * Created by robert on 10/1/2014.
  */
 
-@Mod(name = "Creations: Builder's Toolkit", modid = Creation.DOMAIN, version = "@VERSION@")
+@Mod(name = "Creations: Builder's Toolkit", modid = Creation.DOMAIN, version = "@VERSION@", dependencies = "required-after:VoltzEngine")
 public class Creation extends AbstractMod
 {
     public static final String DOMAIN = "creationsbt";
@@ -51,13 +51,12 @@ public class Creation extends AbstractMod
     public void preInit(FMLPreInitializationEvent e)
     {
         super.preInit(e);
-        // creative tab
-        creativeTab = new ModCreativeTab(DOMAIN);
-        getManager().setTab(creativeTab);
+        // TODO re-enabled when we have more items
+        //creativeTab = new ModCreativeTab(DOMAIN);
+        //getManager().setTab(creativeTab);
 
         glove = getManager().newItem(ItemGlove.class);
-        creativeTab.itemStack = new ItemStack(glove);
-
+        //creativeTab.itemStack = new ItemStack(glove);
     }
 
     @EventHandler

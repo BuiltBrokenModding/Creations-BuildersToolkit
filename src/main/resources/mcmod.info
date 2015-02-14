@@ -1,16 +1,16 @@
 [
 {
-  "modid": "creationMod",
-  "name": "Creation Mod",
+  "modid": "creationsbt",
+  "name": "Creations: Builder's Toolkit",
   "description": "BLAH BLAH TODO",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "TODO",
+  "url": "http://www.builtbroken.com/",
   "updateUrl": "TODO",
-  "authors": ["AbrarSyed", "DarkGuardsman"],
-  "credits": "???",
+  "authors": ["DarkGuardsman"],
+  "credits": "AbrarSyed - Early Code work\nDragonLord - Donation/Commission of the mod",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": ["VoltzEngine"]
 }
 ]
