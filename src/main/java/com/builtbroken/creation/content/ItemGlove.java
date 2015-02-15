@@ -245,14 +245,12 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
                                     consumeEnergy(stack, energy_cost_delete, true);
                                     block.onBlockDestroyedByPlayer(player.worldObj, location.xi(), location.yi(), location.zi(), location.getBlockMetadata());
                                     ArrayList<ItemStack> items = block.getDrops(player.worldObj, location.xi(), location.yi(), location.zi(), location.getBlockMetadata(), 0);
-                                    if (!player.capabilities.isCreativeMode)
+
+                                    for (ItemStack s : items)
                                     {
-                                        for (ItemStack s : items)
+                                        if (!player.inventory.addItemStackToInventory(s))
                                         {
-                                            if (!player.inventory.addItemStackToInventory(s))
-                                            {
-                                                InventoryUtility.dropItemStack(new Location(player), s);
-                                            }
+                                            InventoryUtility.dropItemStack(new Location(player), s);
                                         }
                                     }
                                 }

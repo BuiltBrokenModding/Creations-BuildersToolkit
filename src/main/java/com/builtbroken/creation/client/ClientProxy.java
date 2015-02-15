@@ -16,5 +16,6 @@ public class ClientProxy extends CommonProxy
     {
         super.init();
         MinecraftForge.EVENT_BUS.register(new RenderSelection());
+        MinecraftForge.EVENT_BUS.register(new RenderToolOverlay());
     }
 }
