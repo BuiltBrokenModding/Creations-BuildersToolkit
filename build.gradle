@@ -1,7 +1,7 @@
-// this part adds in ForgeGradle
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
@@ -11,18 +11,38 @@ buildscript {
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
-    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT' }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
 }
 
+ext.buildProps = file "build.properties"
+
+buildProps.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
+}
+
+apply from: './BuiltBrokenScripts/index.gradle'
 apply plugin: "forge"
 
-if (project.getProperty("bambooshortPlanName") == "BBM-Dev") {
-    group = "dev.builtbroken.creation"
-    archivesBaseName = "Creations"
-} else {
-    group = "com.builtbroken.creation"
-    archivesBaseName = "Creations"
+ext.buildProps = file "build.properties"
+
+println "Current Minecraft version = " + minecraft.apiVersion
+
+def currentJvm = org.gradle.internal.jvm.Jvm.current()
+println "Current Java version = " + currentJvm
+
+buildProps.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
 }
+
+group = "com.builtbroken.creations"
+archivesBaseName = "Creations"
+
 
 println archivesBaseName 
 
@@ -36,11 +56,18 @@ else
 
 println "version = "+ version
 
-// add some stuff to the version
-// spit out the version for debugging sake
-logger.lifecycle ""+version
-version = "${minecraft.version}-$version.${System.getenv().BUILD_NUMBER}"
-logger.lifecycle ""+version
+minecraft {
+	replace "@MAJOR@", config.version.mod.major
+	replace "@MINOR@", config.version.mod.minor
+	replace "@REVIS@", config.version.mod.revis
+	
+	if (project.hasProperty("bambooBuildNumber")) {
+		replace "@BUILD@", project.bambooBuildNumber
+	}
+	else {
+		replace "@BUILD@", getDate()
+	}
+}
 
 processResources {
     inputs.property "version", project.version
@@ -60,9 +87,17 @@ processResources {
     from(sourceSets.main.resources.srcDirs) { exclude '**/*.info' }
 }
 
+repositories {
+    maven {
+        name "BuiltBroken"
+        url "http://ci.builtbroken.com/maven/"
+    }
+}
+
 dependencies {
     compile 'com.google.gag:gag:1.0.1'
     testCompile 'junit:junit:4.11'
+    compile "dev.builtbroken.voltzengine:VoltzEngine:1.7.10-0.+:deobf-dev"
 }
 
 def getDate() {
