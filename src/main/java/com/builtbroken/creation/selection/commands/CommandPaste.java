@@ -1,7 +1,7 @@
 package com.builtbroken.creation.selection.commands;
 
-import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;

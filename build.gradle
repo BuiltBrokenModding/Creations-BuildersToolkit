@@ -44,7 +44,7 @@ group = "com.builtbroken.creations"
 archivesBaseName = "Creations"
 
 
-println archivesBaseName 
+println archivesBaseName
 
 version = "${project.minecraft.version}-${config.version.mod.major}.${config.version.mod.minor}.${config.version.mod.revis}b"
 
@@ -54,19 +54,18 @@ if (project.hasProperty("bambooBuildNumber"))
 else
     version += getDate()
 
-println "version = "+ version
+println "version = " + version
 
 minecraft {
-	replace "@MAJOR@", config.version.mod.major
-	replace "@MINOR@", config.version.mod.minor
-	replace "@REVIS@", config.version.mod.revis
-	
-	if (project.hasProperty("bambooBuildNumber")) {
-		replace "@BUILD@", project.bambooBuildNumber
-	}
-	else {
-		replace "@BUILD@", getDate()
-	}
+    replace "@MAJOR@", config.version.mod.major
+    replace "@MINOR@", config.version.mod.minor
+    replace "@REVIS@", config.version.mod.revis
+
+    if (project.hasProperty("bambooBuildNumber")) {
+        replace "@BUILD@", project.bambooBuildNumber
+    } else {
+        replace "@BUILD@", getDate()
+    }
 }
 
 processResources {
@@ -80,7 +79,7 @@ processResources {
         // replace version and MCVersion
         // forge version is also accessible via project.minecraftforgeVersion
         // it contains the full minecraft version, including buildNumber
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
     // copy everything else, thats not text

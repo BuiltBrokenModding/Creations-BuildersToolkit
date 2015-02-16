@@ -204,13 +204,13 @@ public class Selection
 
     /**
      * Grabs all blocks near the point and within the distance.
-     *
+     * <p/>
      * Note this search pattern does start at most negative corner
      * TODO replace search pattern with same code the blasts use
      * to select blocks in a bubble
      *
      * @param location - center point of the search
-     * @param size - number of items to return
+     * @param size     - number of items to return
      * @param distance - distance to search
      * @return list of locations of non air blocks sorted to closest to location
      */

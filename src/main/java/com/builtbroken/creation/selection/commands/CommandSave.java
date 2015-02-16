@@ -1,7 +1,7 @@
 package com.builtbroken.creation.selection.commands;
 
-import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.schematic.Schematic;
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.mc.lib.helper.NBTUtility;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,7 +28,7 @@ public class CommandSave extends SubCommand
     @Override
     public boolean processCommand(ICommandSender user, String[] args)
     {
-        if(user instanceof EntityPlayer)
+        if (user instanceof EntityPlayer)
         {
             Schematic sch = SelectionHandler.getSchematic(((EntityPlayer) user).getUniqueID());
 

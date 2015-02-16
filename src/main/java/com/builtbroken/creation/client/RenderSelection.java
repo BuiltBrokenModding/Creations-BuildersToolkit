@@ -1,7 +1,7 @@
 package com.builtbroken.creation.client;
 
-import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.creation.selection.Selection;
+import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;

@@ -1,35 +1,26 @@
 package com.builtbroken.creation.schematic;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
+import com.builtbroken.creation.selection.Selection;
 import com.builtbroken.mc.lib.transform.vector.Pos;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.IFluidBlock;
-import com.builtbroken.creation.selection.Selection;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
 
-/** Set of blocks that make up the instructions for building something
- * 
- * @author Darkguardsman */
+/**
+ * Set of blocks that make up the instructions for building something
+ *
+ * @author Darkguardsman
+ */
 public class Schematic
 {
 
@@ -50,11 +41,11 @@ public class Schematic
     {
         load(file);
     }
-    
+
     public void build(World world, Pos center)
     {
         System.out.println("Paste debug");
-        for(Entry<Pos, BlockMeta> entry : blocks.entrySet())
+        for (Entry<Pos, BlockMeta> entry : blocks.entrySet())
         {
             Pos vec = entry.getKey().clone().add(center);
             System.out.println(vec + "  " + entry.getValue());
@@ -67,10 +58,12 @@ public class Schematic
     ///             & Load                   ///
     ////////////////////////////////////////////
 
-    /** Loads the selection from the world
-     * 
-     * @param world - world to load from
-     * @param selection - area to load from */
+    /**
+     * Loads the selection from the world
+     *
+     * @param world     - world to load from
+     * @param selection - area to load from
+     */
     public Schematic load(World world, Selection selection)
     {
         blocks = new TreeMap<Pos, BlockMeta>();
@@ -99,21 +92,23 @@ public class Schematic
         return this;
     }
 
-    /** Loads a schematic from a NBTTagCompound, auto converts block ids and catchs missing blocks
-     * 
+    /**
+     * Loads a schematic from a NBTTagCompound, auto converts block ids and catchs missing blocks
+     *
      * @param nbt - NBTTagCompound to load from, must contain the correct data
-     * @return list of missing blocks if they are not present in this instance of the game */
+     * @return list of missing blocks if they are not present in this instance of the game
+     */
     public List<MissingBlock> load(NBTTagCompound nbt)
     {
         blocks = new TreeMap<Pos, BlockMeta>();
-        
+
         //Save size
         this.size = new Pos(0, 0, 0);
         size = new Pos(nbt.getShort("sizeX"), nbt.getShort("sizeY"), nbt.getShort("sizeZ"));
 
         //Save center
         this.center = new Pos(nbt.getShort("centerX"), nbt.getShort("centerY"), nbt.getShort("centerZ"));
-        
+
         HashMap<Integer, MissingBlock> missingBlocks = new HashMap<Integer, MissingBlock>();
         byte[] loadedIDs = nbt.getByteArray("Blocks");
         byte[] metaLoaded = nbt.getByteArray("Data");
@@ -125,16 +120,16 @@ public class Schematic
         {
             //"s" + o, id.modId + ":" + id.name + ":" + block.blockID
             String save = idTag.getString("s" + i);
-            if(save == null || save.isEmpty())
+            if (save == null || save.isEmpty())
                 continue;
             String[] split = save.split(":");
-            String modName = split[0];           
+            String modName = split[0];
             String blockName = split[1];
             int blockId = Integer.getInteger(split[2], -1);
-            
-            if(blockId == -1 || modName.equalsIgnoreCase("Minecraft") || blockName.equalsIgnoreCase("block"))
+
+            if (blockId == -1 || modName.equalsIgnoreCase("Minecraft") || blockName.equalsIgnoreCase("block"))
                 continue;
-            
+
             Block block = GameRegistry.findBlock(modName, blockName);
             if (block != null)
             {
@@ -169,8 +164,8 @@ public class Schematic
                     Pos vec = new Pos(x, y, z);
                     int id = loadedIDs[index];
                     int meta = metaLoaded[index];
-                    
-                    System.out.println("ID: " + id +"  Meta:"+meta);
+
+                    System.out.println("ID: " + id + "  Meta:" + meta);
 
                     if (idToNewId.containsKey(id))
                     {
@@ -180,7 +175,7 @@ public class Schematic
                     {
                         missingBlocks.get(id).add(vec);
                     }
-                    else if(Block.getBlockById(id) != null)
+                    else if (Block.getBlockById(id) != null)
                     {
                         blocks.put(vec, new BlockMeta(Block.getBlockById(id), meta));
                     }
@@ -219,7 +214,7 @@ public class Schematic
             }
             setIDs[index] = (byte) (Block.getIdFromBlock(block.getBlock()) & 0xff);
             setMetas[index] = (byte) (block.getMeta() & 0xff);
-            
+
             index++;
         }
         nbt.setByteArray("Blocks", setIDs);
@@ -232,10 +227,10 @@ public class Schematic
         for (Block block : blockList)
         {
             UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(block);
-            if(id != null)
+            if (id != null)
             {
                 idTag.setString("s" + o, id.modId + ":" + id.name + ":" + Block.getIdFromBlock(block));
-               
+
             }
             else
             {
@@ -249,7 +244,7 @@ public class Schematic
 
     public void load(File file) throws FileNotFoundException, IOException
     {
-        load(CompressedStreamTools.readCompressed(new FileInputStream(file)));  
+        load(CompressedStreamTools.readCompressed(new FileInputStream(file)));
     }
 
     public void save(File file)
@@ -269,38 +264,36 @@ public class Schematic
             }
 
             tempFile.renameTo(file);
-        }
-        catch (FileNotFoundException e)
+        } catch (FileNotFoundException e)
         {
             e.printStackTrace();
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
     }
-    
+
     ////////////////////////////////////////////
     ///  Manipulation                        ///
     ////////////////////////////////////////////
-    
+
     public Schematic rotateClockwise()
     {
         Schematic sch = clone();
         TreeMap<Pos, BlockMeta> map = new TreeMap<Pos, BlockMeta>();
-        for(Entry<Pos, BlockMeta> entry : blocks.entrySet())
+        for (Entry<Pos, BlockMeta> entry : blocks.entrySet())
         {
             map.put(new Pos(entry.getKey().z(), entry.getKey().y(), size.xi() - entry.getKey().x()), entry.getValue());
         }
         size = new Pos(size.z(), size.y(), size.x());
         return sch;
     }
-    
+
     public Schematic rotateCounterClockwise()
     {
         Schematic sch = clone();
         TreeMap<Pos, BlockMeta> map = new TreeMap<Pos, BlockMeta>();
-        for(Entry<Pos, BlockMeta> entry : blocks.entrySet())
+        for (Entry<Pos, BlockMeta> entry : blocks.entrySet())
         {
             map.put(new Pos(size.zi() - entry.getKey().z(), entry.getKey().y(), entry.getKey().x()), entry.getValue());
         }
@@ -347,7 +340,7 @@ public class Schematic
     {
         return Collections.unmodifiableMap(blocks);
     }
-    
+
     public Schematic clone()
     {
         Schematic schematic = new Schematic();
