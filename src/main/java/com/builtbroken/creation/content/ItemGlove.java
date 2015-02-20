@@ -139,7 +139,6 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     public void onUsingTick(ItemStack stack, EntityPlayer player, int ticks_left)
     {
         int mode = getMode(stack);
-        System.out.println("Using tick - " + ticks_left + " mode: " + mode);
         if (mode == GloveModes.DELETE.ordinal() && ticks_left > 0)
         {
             Selection select = SelectionHandler.getSelection(player.getUniqueID());
