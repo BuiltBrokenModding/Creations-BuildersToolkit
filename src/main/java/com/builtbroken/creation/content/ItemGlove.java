@@ -65,12 +65,12 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held)
     {
-        if (entity instanceof EntityPlayer && ((EntityPlayer) entity).getItemInUse() != stack)
+        if (entity instanceof EntityPlayer && !((EntityPlayer) entity).isUsingItem())
         {
             if (getEnergy(stack) < max_energy)
             {
                 //TODO add different types of regen based on upgrades and location
-                this.setEnergy(stack, Math.min(max_energy, getEnergy(stack) + 10));
+                this.setEnergy(stack, Math.min(max_energy, getEnergy(stack) + 1));
             }
         }
     }
