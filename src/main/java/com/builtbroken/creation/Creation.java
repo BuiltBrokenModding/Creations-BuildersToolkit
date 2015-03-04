@@ -40,7 +40,7 @@ public class Creation extends AbstractMod
 
     public Creation()
     {
-        super(DOMAIN);
+        super(DOMAIN, "CreationsBuilderToolkit");
     }
 
     @EventHandler
