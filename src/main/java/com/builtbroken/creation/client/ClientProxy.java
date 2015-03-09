@@ -8,14 +8,9 @@ import net.minecraftforge.common.MinecraftForge;
  */
 public class ClientProxy extends CommonProxy
 {
-    //https://github.com/AbrarSyed/SecretRoomsMod-forge/blob/master/src/main/java/com/github/abrarsyed/secretroomsmod/client/ProxyClient.java#L33
-    //https://github.com/AbrarSyed/SecretRoomsMod-forge/blob/master/src/main/java/com/github/abrarsyed/secretroomsmod/client/SecretKeyHandler.jav
-
     @Override
     public void init()
     {
         super.init();
-        MinecraftForge.EVENT_BUS.register(new RenderSelection());
-        MinecraftForge.EVENT_BUS.register(new RenderToolOverlay());
     }
 }

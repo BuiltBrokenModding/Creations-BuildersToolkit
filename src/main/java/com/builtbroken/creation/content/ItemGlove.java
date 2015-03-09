@@ -1,13 +1,14 @@
 package com.builtbroken.creation.content;
 
 import com.builtbroken.creation.Creation;
-import com.builtbroken.creation.selection.Selection;
-import com.builtbroken.creation.selection.SelectionHandler;
 import com.builtbroken.mc.api.items.IModeItem;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
+import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import com.builtbroken.mc.lib.transform.vector.Pos;
+import com.builtbroken.mc.lib.world.edit.Selection;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -25,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
+import com.builtbroken.mc.core.handler.SelectionHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,7 +143,7 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
         int mode = getMode(stack);
         if (mode == GloveModes.DELETE.ordinal() && ticks_left > 0)
         {
-            Selection select = SelectionHandler.getSelection(player.getUniqueID());
+            Selection select = SelectionHandler.getSelection(player);
 
             if (select != null && select.isValid() && (player.capabilities.isCreativeMode || consumeEnergy(stack, energy_cost_delete * ticks_left, false)))
             {
@@ -289,18 +291,18 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     {
         if (!location.world().isRemote)
         {
-            Selection select = SelectionHandler.getSelection(player.getUniqueID());
+            Cube select = SelectionHandler.getSelection(player);
 
             if (player.isSneaking())
             {
                 select.setPointOne(location.toVector3());
-                if (Creation.isDevEnv())
+                if (Engine.runningAsDev)
                     player.addChatComponentMessage(new ChatComponentText(("Point One: " + select)));
             }
             else
             {
                 select.setPointTwo(location.toVector3());
-                if (Creation.isDevEnv())
+                if (Engine.runningAsDev)
                     player.addChatComponentMessage(new ChatComponentText(("Point Two: " + select)));
             }
         }
