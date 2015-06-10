@@ -1,6 +1,7 @@
 package com.builtbroken.creation;
 
 import com.builtbroken.creation.content.ItemGlove;
+import com.builtbroken.creation.content.forge.TileSphere;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
@@ -11,6 +12,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 
 /**
@@ -32,6 +34,8 @@ public class Creation extends AbstractMod
     public static ModCreativeTab creativeTab;
     public static Item glove;
 
+    public static Block blockSphere;
+
     public Creation()
     {
         super(DOMAIN, "CreationsBuilderToolkit");
@@ -46,6 +50,7 @@ public class Creation extends AbstractMod
         //getManager().setTab(creativeTab);
 
         glove = getManager().newItem(ItemGlove.class);
+        blockSphere = getManager().newBlock(TileSphere.class);
         //MinecraftForge.EVENT_BUS.register(new RenderRoboticArm());
         //creativeTab.itemStack = new ItemStack(glove);
     }
