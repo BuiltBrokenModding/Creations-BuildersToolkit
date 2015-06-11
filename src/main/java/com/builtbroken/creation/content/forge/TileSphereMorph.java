@@ -41,7 +41,7 @@ public class TileSphereMorph extends Tile
     List<Pos> original_verts = new ArrayList();
 
     @SideOnly(Side.CLIENT)
-    public static final ResourceLocation lava_texture = new ResourceLocation(Creation.DOMAIN, References.TEXTURE_DIRECTORY +"models/lava.png");
+    public static final ResourceLocation lava_texture = new ResourceLocation(Creation.DOMAIN, References.TEXTURE_DIRECTORY + "models/lava.png");
 
     public TileSphereMorph()
     {
@@ -52,15 +52,15 @@ public class TileSphereMorph extends Tile
         this.renderNormalBlock = true;
         this.renderTileEntity = true;
         this.creativeTab = CreativeTabs.tabBlock;
-    if (model == null)
-    {
-        model = new Model();
-        IcoSphereCreator isoSphereCreator = new IcoSphereCreator();
-        Mesh m = isoSphereCreator.Create(2);
-        model.meshes.add(m);
-        original_verts.addAll(m.getVertices());
+        if (model == null)
+        {
+            model = new Model();
+            IcoSphereCreator isoSphereCreator = new IcoSphereCreator();
+            Mesh m = isoSphereCreator.Create(1);
+            model.meshes.add(m);
+            original_verts.addAll(m.getVertices());
+        }
     }
-}
 
     public int getLightValue()
     {
@@ -106,7 +106,7 @@ public class TileSphereMorph extends Tile
     public void update()
     {
         super.update();
-        if(isClient())
+        if (isClient())
         {
             if (ticks % 3 == 0)
             {
@@ -141,42 +141,28 @@ public class TileSphereMorph extends Tile
     @SideOnly(Side.CLIENT)
     public void renderDynamic(Pos pos, float frame, int pass)
     {
-        if(invert)
+        if (invert)
         {
             y_level += .001;
-            if(y_level >= 0.1)
+            if (y_level >= 0.1)
                 invert = false;
-        }
-        else
+        } else
         {
             y_level -= .001;
-            if(y_level <= -0.1)
+            if (y_level <= -0.1)
                 invert = true;
         }
 
         //Start mesh rendering
         GL11.glPushMatrix();
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glColor3f(Color.GRAY.getRed(), Color.GRAY.getBlue(), Color.GRAY.getGreen());
+        //GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glColor3f(Color.DARK_GRAY.getRed(), Color.DARK_GRAY.getBlue(), Color.DARK_GRAY.getGreen());
         GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 1 + y_level, pos.zf() + 0.5f);
         GL11.glScalef(0.3f, 0.3f, 0.3f);
         GL11.glRotatef(yaw += 1, 0, 1, 0);
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(lava_texture);
         model.render();
-        GL11.glDisable(GL11.GL_LIGHTING);
+        //GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
-
-        /*
-        GL11.glPushMatrix();
-        GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 1, pos.zf() + 0.5f);
-        GL11.glScalef(0.3001f, 0.3001f, 0.3001f);
-        GL11.glRotatef(yaw, 0, 1, 0);
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(lava_texture);
-        model.line = true;
-        model.render();
-        model.line = false;
-        GL11.glPopMatrix();
-        */
-
     }
 }
