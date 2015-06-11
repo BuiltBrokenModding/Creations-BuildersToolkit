@@ -1,7 +1,9 @@
 package com.builtbroken.creation.content.forge;
 
 
+import com.builtbroken.creation.Creation;
 import com.builtbroken.jlib.model.IcoSphereCreator;
+import com.builtbroken.jlib.model.Mesh;
 import com.builtbroken.jlib.model.Model;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.transform.region.Cube;
@@ -19,6 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -32,7 +35,10 @@ public class TileSphereMorph extends Tile
 {
     float y = 0;
     Model model;
-    Model original_model;
+    List<Pos> original_verts = new ArrayList();
+
+    @SideOnly(Side.CLIENT)
+    public static final ResourceLocation lava_texture = new ResourceLocation(Creation.DOMAIN, References.TEXTURE_DIRECTORY +"models/lava_500.png");
 
     public TileSphereMorph()
     {
@@ -46,11 +52,10 @@ public class TileSphereMorph extends Tile
         if (model == null)
         {
             model = new Model();
-            original_model = new Model();
-
             IcoSphereCreator isoSphereCreator = new IcoSphereCreator();
-            model.meshes.add(isoSphereCreator.Create(2));
-            original_model.meshes.add(isoSphereCreator.Create(2));
+            Mesh m = isoSphereCreator.Create(2);
+            model.meshes.add(m);
+            original_verts.addAll(m.getVertices());
         }
     }
 
@@ -105,7 +110,7 @@ public class TileSphereMorph extends Tile
                 List<Pos> oldVerts = model.meshes.get(0).getVertices();
                 for (int i = 0; i < oldVerts.size(); i++)
                 {
-                    newVerts.add(oldVerts.get(i).lerp(original_model.meshes.get(0).getVertices().get(i), changePercent));
+                    newVerts.add(oldVerts.get(i).lerp(original_verts.get(i), changePercent));
                 }
 
                 //Mesh model back up, slowly
@@ -113,10 +118,13 @@ public class TileSphereMorph extends Tile
                 {
                     if (worldObj.rand.nextFloat() <= randomChangeChance)
                     {
-                        Pos pos = new Pos().addRandom(worldObj.rand, 0.1);
-                        newVerts.add(i, newVerts.get(i).add(pos));
+                        Pos pos = new Pos().addRandom(worldObj.rand, .1);
+                        newVerts.set(i, newVerts.get(i).add(pos));
                     }
                 }
+
+                model.meshes.get(0).getVertices().clear();
+                model.meshes.get(0).getVertices().addAll(newVerts);
             }
         }
     }
@@ -130,7 +138,7 @@ public class TileSphereMorph extends Tile
         GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 1, pos.zf() + 0.5f);
         GL11.glScalef(0.3f, 0.3f, 0.3f);
         GL11.glRotatef(y += 1, 0, 1, 0);
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
+        FMLClientHandler.instance().getClient().renderEngine.bindTexture(lava_texture);
         model.render();
         //drawSphere(1, 1, 1, 10, 10);
         GL11.glPopMatrix();

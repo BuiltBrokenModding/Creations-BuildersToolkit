@@ -88,7 +88,7 @@ public class TileSphere extends Tile
     {
         super.update();
 
-        if (ticks % 400 == 0)
+        if (ticks % 80 == 0)
         {
             index++;
             if (index > 6)
@@ -116,8 +116,9 @@ public class TileSphere extends Tile
 
         //Start mesh rendering
         GL11.glPushMatrix();
-        GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 1, pos.zf() + 0.5f);
-        GL11.glScalef(0.3f, 0.3f, 0.3f);
+        GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 6, pos.zf() + 0.5f);
+        float scale = 2f;
+        GL11.glScalef(scale, scale, scale);
         GL11.glRotatef(y += 1, 0, 1, 0);
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
         model.render();
