@@ -24,6 +24,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 
@@ -116,13 +117,13 @@ public class TileSphere extends Tile
 
         //Start mesh rendering
         GL11.glPushMatrix();
+        GL11.glColor3f(Color.white.getRed(), Color.white.getGreen(), Color.white.getBlue());
         GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 6, pos.zf() + 0.5f);
         float scale = 2f;
         GL11.glScalef(scale, scale, scale);
         GL11.glRotatef(y += 1, 0, 1, 0);
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
         model.render();
-        //drawSphere(1, 1, 1, 10, 10);
         GL11.glPopMatrix();
     }
 }
