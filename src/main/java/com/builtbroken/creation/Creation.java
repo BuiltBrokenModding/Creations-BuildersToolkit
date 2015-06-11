@@ -2,6 +2,7 @@ package com.builtbroken.creation;
 
 import com.builtbroken.creation.content.ItemGlove;
 import com.builtbroken.creation.content.forge.TileSphere;
+import com.builtbroken.creation.content.forge.TileSphereMorph;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
@@ -35,6 +36,7 @@ public class Creation extends AbstractMod
     public static Item glove;
 
     public static Block blockSphere;
+    public static Block blockSphereMorph;
 
     public Creation()
     {
@@ -51,6 +53,7 @@ public class Creation extends AbstractMod
 
         glove = getManager().newItem(ItemGlove.class);
         blockSphere = getManager().newBlock(TileSphere.class);
+        blockSphereMorph = getManager().newBlock(TileSphereMorph.class);
         //MinecraftForge.EVENT_BUS.register(new RenderRoboticArm());
         //creativeTab.itemStack = new ItemStack(glove);
     }
