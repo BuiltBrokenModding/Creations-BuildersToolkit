@@ -103,11 +103,7 @@ public class TileSphere extends Tile
     {
         if (!models.containsKey(index))
         {
-            IcoSphereCreator isoSphereCreator = new IcoSphereCreator();
-            Mesh mesh = isoSphereCreator.Create(index);
-            Model model = new Model();
-            model.meshes.add(mesh);
-            models.put(index, model);
+            models.put(index, new Model(IcoSphereCreator.create(index)));
         }
         Model model = models.get(index);
 
@@ -123,6 +119,7 @@ public class TileSphere extends Tile
         GL11.glScalef(scale, scale, scale);
         GL11.glRotatef(y += 1, 0, 1, 0);
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
+        model.render_wireframe = true;
         model.render();
         GL11.glPopMatrix();
     }

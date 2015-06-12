@@ -36,9 +36,11 @@ public class TileSphereMorph extends Tile
 {
     float yaw = 0;
     float y_level = 0;
+    float size = 1;
     boolean invert = false;
-    Model model;
-    List<Pos> original_verts = new ArrayList();
+
+    protected static Model original_model;
+    protected Model model;
 
     @SideOnly(Side.CLIENT)
     public static final ResourceLocation lava_texture = new ResourceLocation(Creation.DOMAIN, References.TEXTURE_DIRECTORY + "models/lava.png");
@@ -52,15 +54,89 @@ public class TileSphereMorph extends Tile
         this.renderNormalBlock = true;
         this.renderTileEntity = true;
         this.creativeTab = CreativeTabs.tabBlock;
-        if (model == null)
+    }
+
+    protected Model getModel()
+    {
+        if(original_model == null)
+            original_model = new Model(IcoSphereCreator.create(1));
+        if(model == null)
+            model = original_model.clone();
+        return model;
+    }
+
+    @Override
+    public void firstTick()
+    {
+        super.firstTick();
+        size = getMetadata() * 0.5f + 0.5f;
+    }
+
+    @Override
+    public void update()
+    {
+        super.update();
+        if (isClient())
         {
-            model = new Model();
-            IcoSphereCreator isoSphereCreator = new IcoSphereCreator();
-            Mesh m = isoSphereCreator.Create(1);
-            model.meshes.add(m);
-            original_verts.addAll(m.getVertices());
+            if (ticks % 3 == 0)
+            {
+                //Change model back to original slowly
+                float changePercent = .1f;
+                float randomChangeChance = .1f;
+
+                List<Pos> newVerts = new ArrayList();
+                List<Pos> oldVerts = getModel().meshes.get(0).getVertices();
+                for (int i = 0; i < oldVerts.size(); i++)
+                {
+                    newVerts.add(oldVerts.get(i).lerp(original_model.meshes.get(0).vertices.get(i), changePercent));
+                }
+
+                //Mess model up to give the impression of movement, slowly
+                for (int i = 0; i < newVerts.size(); i++)
+                {
+                    if (worldObj.rand.nextFloat() <= randomChangeChance)
+                    {
+                        Pos pos = new Pos().addRandom(worldObj.rand, .1);
+                        newVerts.set(i, newVerts.get(i).add(pos));
+                    }
+                }
+
+                model.meshes.get(0).getVertices().clear();
+                model.meshes.get(0).getVertices().addAll(newVerts);
+            }
         }
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void renderDynamic(Pos pos, float frame, int pass)
+    {
+        if (invert)
+        {
+            y_level += .001 * size;
+            if (y_level >= 0.1 * size)
+                invert = false;
+        } else
+        {
+            y_level -= .001 * size;
+            if (y_level <= -0.1 * size)
+                invert = true;
+        }
+
+        //Start mesh rendering
+        GL11.glPushMatrix();
+        //GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glColor3f(Color.DARK_GRAY.getRed(), Color.DARK_GRAY.getBlue(), Color.DARK_GRAY.getGreen());
+        GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + (size * 1.5f) + y_level, pos.zf() + 0.5f);
+        GL11.glScalef(0.3f * size, 0.3f * size, 0.3f * size);
+        GL11.glRotatef(yaw += 1, 0, 1, 0);
+        FMLClientHandler.instance().getClient().renderEngine.bindTexture(lava_texture);
+        getModel().render();
+        //GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glPopMatrix();
+    }
+
+
 
     public int getLightValue()
     {
@@ -70,8 +146,8 @@ public class TileSphereMorph extends Tile
     @Override
     public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
     {
-        //TODO list.add(new ItemStack(item, 1, 0)); add Micro missile renderer
-        list.add(new ItemStack(item, 1, 1));
+        for (int i = 0; i < 16; i++)
+            list.add(new ItemStack(item, 1, i));
     }
 
 
@@ -100,69 +176,5 @@ public class TileSphereMorph extends Tile
     public AxisAlignedBB getRenderBoundingBox()
     {
         return new Cube(0, 0, 0, 1, 3, 1).add(x(), y(), z()).toAABB();
-    }
-
-    @Override
-    public void update()
-    {
-        super.update();
-        if (isClient())
-        {
-            if (ticks % 3 == 0)
-            {
-                //Change model back to original slowly
-                float changePercent = .1f;
-                float randomChangeChance = .1f;
-
-                List<Pos> newVerts = new ArrayList();
-                List<Pos> oldVerts = model.meshes.get(0).getVertices();
-                for (int i = 0; i < oldVerts.size(); i++)
-                {
-                    newVerts.add(oldVerts.get(i).lerp(original_verts.get(i), changePercent));
-                }
-
-                //Mess model up to give the impression of movement, slowly
-                for (int i = 0; i < newVerts.size(); i++)
-                {
-                    if (worldObj.rand.nextFloat() <= randomChangeChance)
-                    {
-                        Pos pos = new Pos().addRandom(worldObj.rand, .1);
-                        newVerts.set(i, newVerts.get(i).add(pos));
-                    }
-                }
-
-                model.meshes.get(0).getVertices().clear();
-                model.meshes.get(0).getVertices().addAll(newVerts);
-            }
-        }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void renderDynamic(Pos pos, float frame, int pass)
-    {
-        if (invert)
-        {
-            y_level += .001;
-            if (y_level >= 0.1)
-                invert = false;
-        } else
-        {
-            y_level -= .001;
-            if (y_level <= -0.1)
-                invert = true;
-        }
-
-        //Start mesh rendering
-        GL11.glPushMatrix();
-        //GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glColor3f(Color.DARK_GRAY.getRed(), Color.DARK_GRAY.getBlue(), Color.DARK_GRAY.getGreen());
-        GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 1 + y_level, pos.zf() + 0.5f);
-        GL11.glScalef(0.3f, 0.3f, 0.3f);
-        GL11.glRotatef(yaw += 1, 0, 1, 0);
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(lava_texture);
-        model.render();
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glPopMatrix();
     }
 }
