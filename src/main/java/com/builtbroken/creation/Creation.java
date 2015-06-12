@@ -1,8 +1,8 @@
 package com.builtbroken.creation;
 
 import com.builtbroken.creation.content.ItemGlove;
-import com.builtbroken.creation.content.forge.TileSphere;
-import com.builtbroken.creation.content.forge.TileSphereMorph;
+import com.builtbroken.creation.content.tests.TileSphere;
+import com.builtbroken.creation.content.tests.TileSphereMorph;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;

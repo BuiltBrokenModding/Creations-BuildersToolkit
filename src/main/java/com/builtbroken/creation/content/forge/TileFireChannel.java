@@ -6,11 +6,11 @@ import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.*;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,26 +18,46 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * Spirit magic implementation of a fluid furnace, converts any item into its molten version.
+ * <p/>
+ * Will incinerate any item it can't convert or throw out based on map data.
+ * <p/>
+ * Design Doc:
  * https://docs.google.com/document/d/1Sbcma7PVv_MNtIqQh_qn7cPZRwP8SUsYz0sqaV_rKB0/edit?usp=sharing
+ * <p/>
+ * <p/>
  * Created by Dark on 6/9/2015.
  */
-public class TileFireChannel extends TileElementChannel implements IFluidHandler
+public class TileFireChannel extends TileElementChannel implements IFluidHandler, IPos3D
 {
+    /** Number of buckets each meter of the sphere can contain, controlls volume of the sphere */
     public static int BUCKETS_PER_METER = 16;
+    /** Conversion ratio of ingot to fluid volume, based on Tinkers *in theory* */
+    public static int INGOT_VOLUME = 144;
 
-    //Orb size data
+    /** Bounding box for sphere, used to detect entity collisions */
     protected AxisAlignedBB fireBB;
+    /** Data to based the size of the forge on */
     protected ForgeSize size;
 
-    //Tank related info
+    /** Fluid ID to Tank */
     protected HashMap<Integer, FluidTank> tanks = new HashMap();
+    /** Current volume of stored fluids */
     protected int volume;
 
-    //Orb size, based on tank volume
+    /** How full the tank is between 0 - 1 */
     protected double percent_filled = 0;
+    /** Radius of the sphere to render, based on percent filled */
     protected double current_radius = 0;
+    /** Radius items orbit the sphere */
+    protected double orbit_radius = 0;
+    /** Amount an item can float away from orbit path, random limit */
+    protected double orbit_float = 0;
 
+    /** List of entities to attack each tick */
     protected List<EntityLivingBase> entities_to_damage = new ArrayList();
+    /** List of items orbiting the sphere */
+    protected List<OrbitData> orbiting_items = new ArrayList();
 
     public TileFireChannel()
     {
@@ -55,6 +75,14 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     public void update()
     {
         super.update();
+
+        //Eat orbiting items
+        if (ticks % 5 == 0)
+        {
+
+        }
+
+        //Search for entities to attack
         if (ticks % 3 == 0)
         {
             //TODO suck in items in a radius
@@ -84,11 +112,21 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                 EntityLivingBase entity = it.next();
                 double distance = entity.getDistance(x(), y(), z());
 
-                //Limit to orb
-                if (distance <= current_radius && !entity.isDead && (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).capabilities.isCreativeMode))
+                //Limit to orb size, things that are alive, and ignore creative players
+                if (distance <= current_radius && entity.isEntityAlive() && (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).capabilities.isCreativeMode))
                 {
-                    double percent = (current_radius - distance) / current_radius;
-                    entity.attackEntityFrom(DamageSource.lava, (float) (percent * size.damage));
+                    //If in water the effect is pointless :p
+                    if (!entity.isInWater())
+                    {
+                        //Chance to set fire
+                        if (!entity.isImmuneToFire() && worldObj.rand.nextFloat() >= 0.7f)
+                        {
+                            entity.setFire(2);
+                        }
+                        //Deal damage based on distance & size of sphere TODO make the damage curved due to center being hotter than edge non-linear
+                        double percent = (current_radius - distance) / current_radius;
+                        entity.attackEntityFrom(DamageSource.lava, (float) (percent * size.damage));
+                    }
                 }
                 else
                 {
@@ -96,6 +134,17 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                 }
             }
         }
+    }
+
+    /**
+     * Adds an item to be inserted into the forge
+     *
+     * @param stack  - itemStack to be added
+     * @param source - location the item started at
+     */
+    public void addItem(ItemStack stack, Pos source)
+    {
+
     }
 
     protected void updateValues()
@@ -156,32 +205,54 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     //helper to keep track of the size and bounds that goes with it
     public enum ForgeSize
     {
-        ONE(1),
-        THREE(3),
-        FIVE(5),
-        SEVEN(7),
-        NINE(9);
+        /** 1 */A,
+        /** 2 */B,
+        /** 3 */C,
+        /** 4 */D,
+        /** 5 */E,
+        /** 6 */F,
+        /** 7 */G,
+        /** 8 */H,
+        /** 9 */I;
 
-        public final int size;
+
+        /** Radius of the sphere */
         public final int r;
+        /** Max volume of the sphere */
         public final int volume;
+        /** Damage inflicted to entities, final value is based on distance from center */
         public final float damage;
-        private final Pos center;
-        private final Cube cube;
 
-        ForgeSize(int size)
+        /** Center offset of the sphere from tile */
+        private final Pos center;
+        /** Collision box size of the sphere */
+        private final Cube collision_cube;
+
+        ForgeSize()
         {
-            this.size = size;
+            int size = ordinal() + 1;
             this.r = size / 2;
             this.damage = r;
             this.volume = (int) ((((4 * Math.PI * r * r * r) / 3) * BUCKETS_PER_METER) * FluidContainerRegistry.BUCKET_VOLUME);
             this.center = new Pos(0, r, 0);
-            this.cube = new Cube(0, 0, 0, size, size, size).add(center);
+            this.collision_cube = new Cube(0, 0, 0, size, size, size).add(center);
         }
 
         public AxisAlignedBB axisAlignedBB(IPos3D tile)
         {
-            return cube.clone().add(tile).toAABB();
+            return collision_cube.clone().add(tile).toAABB();
+        }
+    }
+
+    public class MoltenOrbitData extends OrbitData
+    {
+        //TODO have item degrade over time, slowly falling apart while glowing red
+
+        public int heat_ticks = 0;
+
+        public MoltenOrbitData(ItemStack stack)
+        {
+            super(stack);
         }
     }
 }
