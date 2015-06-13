@@ -1,6 +1,7 @@
 package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.jlib.data.vector.IPos3D;
+import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;
@@ -28,7 +29,7 @@ import java.util.List;
  * <p/>
  * Created by Dark on 6/9/2015.
  */
-public class TileFireChannel extends TileElementChannel implements IFluidHandler, IPos3D
+public class TileFireChannel extends TileElementChannel implements IFluidHandler, IWorldPosition
 {
     /** Number of buckets each meter of the sphere can contain, controlls volume of the sphere */
     public static int BUCKETS_PER_METER = 16;
@@ -250,9 +251,9 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
 
         public int heat_ticks = 0;
 
-        public MoltenOrbitData(ItemStack stack)
+        public MoltenOrbitData(ItemStack stack, IWorldPosition center)
         {
-            super(stack);
+            super(stack, center);
         }
     }
 }

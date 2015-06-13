@@ -1,6 +1,7 @@
 package com.builtbroken.creation;
 
 import com.builtbroken.creation.content.ItemGlove;
+import com.builtbroken.creation.content.tests.TileOrbit;
 import com.builtbroken.creation.content.tests.TileSphere;
 import com.builtbroken.creation.content.tests.TileSphereMorph;
 import com.builtbroken.mc.lib.mod.AbstractMod;
@@ -37,6 +38,7 @@ public class Creation extends AbstractMod
 
     public static Block blockSphere;
     public static Block blockSphereMorph;
+    public static Block blockOrbitTest;
 
     public Creation()
     {
@@ -54,7 +56,7 @@ public class Creation extends AbstractMod
         glove = getManager().newItem(ItemGlove.class);
         blockSphere = getManager().newBlock(TileSphere.class);
         blockSphereMorph = getManager().newBlock(TileSphereMorph.class);
-        //MinecraftForge.EVENT_BUS.register(new RenderRoboticArm());
+        blockOrbitTest = getManager().newBlock(TileOrbit.class);
         //creativeTab.itemStack = new ItemStack(glove);
     }
 
