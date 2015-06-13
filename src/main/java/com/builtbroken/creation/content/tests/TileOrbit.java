@@ -77,6 +77,7 @@ public class TileOrbit extends Tile
         for(OrbitData data: floating_items)
         {
             data.angle = (data.angle + 1) % 360;
+            data.onRenderTick();
         }
     }
 
@@ -93,6 +94,7 @@ public class TileOrbit extends Tile
                 OrbitData item = new OrbitData(new ItemStack(Block.getBlockById(i + 1), 1, 0), orbit_center);
                 item.angle = 36 * i;
                 item.radius = 3;
+                floating_items.add(item);
             }
         }
         else
