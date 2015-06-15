@@ -111,6 +111,7 @@ public class TileSphere extends Tile
         RenderUtility.renderFloatingText("V: " + model.meshes.get(0).getVertices().size(), pos.x(), pos.y() + 1.7, pos.z(), Colors.WHITE.toInt());
 
         //Start mesh rendering
+        /**
         GL11.glPushMatrix();
         GL11.glColor3f(Color.white.getRed(), Color.white.getGreen(), Color.white.getBlue());
         GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 6, pos.zf() + 0.5f);
@@ -120,6 +121,18 @@ public class TileSphere extends Tile
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
         model.render_wireframe = true;
         model.render();
+        GL11.glPopMatrix();
+         */
+
+        GL11.glPushMatrix();
+        GL11.glColor3f(Color.white.getRed(), Color.white.getGreen(), Color.white.getBlue());
+        GL11.glTranslatef(pos.xf() + 0.5f, pos.yf() + 6, pos.zf() + 0.5f);
+        float scale = 2f;
+        GL11.glScalef(scale, scale, scale);
+        GL11.glRotatef(y += 1, 0, 1, 0);
+        FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
+        model.render_wireframe = true;
+        model.tessellate();
         GL11.glPopMatrix();
     }
 }

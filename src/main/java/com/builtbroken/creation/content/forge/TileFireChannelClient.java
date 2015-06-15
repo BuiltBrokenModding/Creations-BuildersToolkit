@@ -77,7 +77,7 @@ public class TileFireChannelClient extends TileFireChannel
         current_radius = percent_filled * size.r;
         model_scale = Math.max(0.3f, (size.ordinal() + 1) * (2/5) * percent_filled);
         //20% larger than radius TODO adjust to avoid visual collision
-        orbit_radius = current_radius + (current_radius * .2f) + 1;
+        orbit_radius = current_radius + (current_radius * .2f) + 0.5f;
     }
 
     @Override

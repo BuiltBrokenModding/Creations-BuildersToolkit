@@ -73,7 +73,7 @@ public class Creation extends AbstractMod
         blockFireChannel = getManager().newBlock(TileFireChannel.class);
         if(Engine.runningAsDev)
         {
-            //blockSphere = getManager().newBlock(TileSphere.class);
+            blockSphere = getManager().newBlock(TileSphere.class);
             //blockSphereMorph = getManager().newBlock(TileSphereMorph.class);
             //blockOrbitTest = getManager().newBlock(TileOrbit.class);
         }
