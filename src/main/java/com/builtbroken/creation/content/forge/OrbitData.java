@@ -57,9 +57,6 @@ public class OrbitData implements IByteBufReader, IByteBufWriter
 
     protected void update2D_path()
     {
-        //angle = MathUtility.lerp(angle, desired_angle, .1f);
-        //radius = MathUtility.lerp(radius, desired_radius, .1f);
-        y = center.y();
         x = center.x() + radius * Math.cos(Math.toRadians(angle));
         z = center.z() + radius * Math.sin(Math.toRadians(angle));
     }
