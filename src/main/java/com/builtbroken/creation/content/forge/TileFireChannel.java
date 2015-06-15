@@ -31,6 +31,9 @@ import java.util.List;
  */
 public class TileFireChannel extends TileElementChannel implements IFluidHandler, IWorldPosition
 {
+    //TODO add power drain when energy code is added
+    //TODO add effect if power goes out, for example have the sphere degrade and turn into a solid clump of mass
+
     /** Number of buckets each meter of the sphere can contain, controlls volume of the sphere */
     public static int BUCKETS_PER_METER = 16;
     /** Conversion ratio of ingot to fluid volume, based on Tinkers *in theory* */
@@ -58,7 +61,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     /** List of entities to attack each tick */
     protected List<EntityLivingBase> entities_to_damage = new ArrayList();
     /** List of items orbiting the sphere */
-    protected List<OrbitData> orbiting_items = new ArrayList();
+    protected List<MoltenOrbitData> orbiting_items = new ArrayList();
 
     public TileFireChannel()
     {
@@ -70,6 +73,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     {
         super.firstTick();
         fireBB = size.axisAlignedBB(toPos());
+        this.updateValues();
     }
 
     @Override
@@ -80,7 +84,8 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
         //Eat orbiting items
         if (ticks % 5 == 0)
         {
-
+            //TODO create an item to molten metal list
+            //TODO allow melting broken tools as a Math.max(.1 * ingotValue, (tool.getDamage / tool.getMaxDamage) * ingotValue);
         }
 
         //Search for entities to attack
@@ -152,6 +157,8 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     {
         percent_filled = volume / size.volume;
         current_radius = percent_filled * size.r;
+        //20% larger than radius TODO adjust to avoid visual collision
+        orbit_radius = current_radius +  ( current_radius * .2);
     }
 
     @Override
@@ -160,50 +167,88 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
         return new TileFireChannel();
     }
 
+    public boolean hasTankForFluid(FluidStack fluid)
+    {
+        return fluid != null && fluid.getFluid() != null ? hasTankForFluid(fluid.getFluid()) : false;
+    }
+
+    public boolean hasTankForFluid(Fluid fluid)
+    {
+        return fluid != null ? tanks.containsKey(fluid.getID()) : false;
+    }
+
+    public FluidTank getTankForFluid(Fluid fluid)
+    {
+        if(fluid != null)
+        {
+            if (!hasTankForFluid(fluid))
+            {
+                tanks.put(fluid.getID(), new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 100));
+            }
+            return tanks.get(fluid.getID());
+        }
+        return null;
+    }
+
+
     @Override
     public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
     {
-        if (from == ForgeDirection.UNKNOWN && resource != null && resource.getFluid() != null)
-        {
-            if (!tanks.containsKey(resource.getFluidID()))
-            {
-                tanks.put(resource.getFluidID(), new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 100));
-            }
-        }
-        return 0;
+        return hasTankForFluid(resource) ? getTankForFluid(resource.getFluid()).fill(resource, doFill) : 0;
     }
 
     @Override
     public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
     {
-        return null;
+        return hasTankForFluid(resource) ? getTankForFluid(resource.getFluid()).drain(resource.amount, doDrain) : null;
     }
 
     @Override
     public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain)
     {
+        //Avoid using as it can easily iterate over all tanks if empty
+        //TODO add clean up code to remove empty tanks from map
+        if(maxDrain > 0)
+        {
+            for(FluidTank tank : tanks.values())
+            {
+                if(tank.getFluidAmount() > 0)
+                {
+                    return tank.drain(maxDrain, doDrain);
+                }
+            }
+        }
         return null;
     }
 
     @Override
     public boolean canFill(ForgeDirection from, Fluid fluid)
     {
+        //TODO allow pipe connections if upgraded with pipe fittings
+        //TODO if filled from external source play filling animation
+        //Animation should show fluid flowing from the base into the ball
         return from == ForgeDirection.UNKNOWN;
     }
 
     @Override
     public boolean canDrain(ForgeDirection from, Fluid fluid)
     {
+        //TODO allow pipe connections if upgraded with pipe fittings
+        //TODO if drained from external source play filling animation
+        //Animation should show fluid flowing from the ball to the base
         return from == ForgeDirection.UNKNOWN;
     }
 
     @Override
     public FluidTankInfo[] getTankInfo(ForgeDirection from)
     {
+        //TODO generate and cache each time the tank map changes
         return new FluidTankInfo[0];
     }
 
-    //helper to keep track of the size and bounds that goes with it
+    /**
+     * Helper to keep track of Forge size data
+     */
     public enum ForgeSize
     {
         /** 1 */A,
@@ -239,16 +284,27 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
             this.collision_cube = new Cube(0, 0, 0, size, size, size).add(center);
         }
 
+        /** Generates a new AxisAlignedBB to be used for entity detection */
         public AxisAlignedBB axisAlignedBB(IPos3D tile)
         {
-            return collision_cube.clone().add(tile).toAABB();
+            return collisionCube(tile).toAABB();
+        }
+
+        /** Generates a Cube from the collision box data */
+        public Cube collisionCube(IPos3D tile)
+        {
+            return collision_cube.clone().add(tile);
         }
     }
 
+    /**
+     * Version of Orbit data that tracks how long the item has been melting
+     */
     public class MoltenOrbitData extends OrbitData
     {
         //TODO have item degrade over time, slowly falling apart while glowing red
 
+        /** Ticks that heat has been applied */
         public int heat_ticks = 0;
 
         public MoltenOrbitData(ItemStack stack, IWorldPosition center)

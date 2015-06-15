@@ -111,8 +111,8 @@ public class TileOrbit extends Tile
         float scale = 2f;
         GL11.glScalef(scale, scale, scale);
         GL11.glRotatef(y += 1, 0, 1, 0);
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
-        model.render_wireframe = true;
+        FMLClientHandler.instance().getClient().renderEngine.bindTexture(TileSphereMorph.lava_texture);
+        //model.render_wireframe = true;
         model.render();
         GL11.glPopMatrix();
     }
