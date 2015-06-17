@@ -75,7 +75,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
 
 
     /** Center of sphere, used to set the point of orbit */
-    protected final IWorldPosition sphere_center;
+    protected IWorldPosition sphere_center;
     protected float sphere_y_delta = 0;
 
     public TileFireChannel()
@@ -129,7 +129,36 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     public void firstTick()
     {
         super.firstTick();
-        if(size == null)
+        if(sphere_center == null)
+        {
+            sphere_center = new IWorldPosition()
+            {
+                @Override
+                public World world()
+                {
+                    return TileFireChannel.this.getWorldObj();
+                }
+
+                @Override
+                public double x()
+                {
+                    return TileFireChannel.this.x() + 0.5;
+                }
+
+                @Override
+                public double y()
+                {
+                    return TileFireChannel.this.y() + 0.5 + (size != null ? size.r : 3) + TileFireChannel.this.sphere_y_delta;
+                }
+
+                @Override
+                public double z()
+                {
+                    return TileFireChannel.this.z() + 0.5;
+                }
+            };
+        }
+        if (size == null)
             size = ForgeSize.C;
         collisionAABB = size.axisAlignedBB(toPos());
         collisionCube = size.collisionCube(toPos());
@@ -175,7 +204,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                             {
                                 collision = true;
                                 //TODO replace with heat map, that is when heat map is finished
-                                PlacementData data = HeatedBlockRegistry.getResultWarmUp(loc.getBlock(), (int)(((current_radius - d) / current_radius) * 1500 + 500));
+                                PlacementData data = HeatedBlockRegistry.getResultWarmUp(loc.getBlock(), (int) (((current_radius - d) / current_radius) * 1500 + 500));
                                 if (data != null && data.block() != null)
                                 {
                                     loc.setBlock(data.block(), data.meta() == -1 ? 0 : data.meta());
@@ -187,29 +216,26 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
 
                 //Search for entities to attack
                 //TODO damage blocks in a larger radius if can burn
-                if (current_radius >= 0.01)
+                //Find all entities to attack in a radius
+                List list = world().getEntitiesWithinAABB(Entity.class, collisionAABB);
+                for (Object object : list)
                 {
-                    //Find all entities to attack in a radius
-                    List list = world().getEntitiesWithinAABB(Entity.class, collisionAABB);
-                    for (Object object : list)
+                    if (object instanceof Entity && ((Entity) object).isEntityAlive())
                     {
-                        if (object instanceof Entity && ((Entity) object).isEntityAlive())
+                        double d = ((Entity) object).getDistance(x(), y(), z());
+                        if (object instanceof EntityLivingBase && d <= current_radius)
                         {
-                            double d = ((Entity) object).getDistance(x(), y(), z());
-                            if (object instanceof EntityLivingBase && d <= current_radius)
-                            {
-                                if (!entities_to_damage.contains(object))
-                                    entities_to_damage.add((EntityLivingBase) object);
+                            if (!entities_to_damage.contains(object))
+                                entities_to_damage.add((EntityLivingBase) object);
 
-                            }
-                            else if (object instanceof EntityItem)
+                        }
+                        else if (object instanceof EntityItem)
+                        {
+                            //TODO only grab smelt-able items, destroy the rest with fire
+                            if (smelting_items.size() < MAX_STORED_ITEMS)
                             {
-                                //TODO only grab smelt-able items, destroy the rest with fire
-                                if (smelting_items.size() < MAX_STORED_ITEMS)
-                                {
-                                    addItem(((EntityItem) object).getEntityItem(), new Pos((Entity) object));
-                                    ((Entity) object).setDead();
-                                }
+                                addItem(((EntityItem) object).getEntityItem(), new Pos((Entity) object));
+                                ((Entity) object).setDead();
                             }
                         }
                     }
@@ -258,13 +284,13 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
      */
     public void addItem(ItemStack stack, Pos source)
     {
+        //TODO maybe extend based on size of sphere
+        if (smelting_items.size() < MAX_STORED_ITEMS)
+        {
+            smelting_items.add(new SmeltStack(stack));
+        }
         if (isServer())
         {
-            //TODO maybe extend based on size of sphere
-            if (smelting_items.size() < MAX_STORED_ITEMS)
-            {
-                smelting_items.add(new SmeltStack(stack));
-            }
             Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 1, stack, source), this);
         }
     }
