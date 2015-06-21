@@ -88,9 +88,8 @@ public class TileFireChannelClient extends TileFireChannel
         }
         for (MoltenOrbitData data : orbiting_items)
         {
-            //TODO scale change by speed & size for a nicer visual effect
-            data.desired_radius = data.angle + 1; // We want the angle to change 1 degree a second
-            data.angle = MathUtility.lerp(data.angle, data.desired_angle, 0.05f);
+            data.desired_radius = orbit_radius;
+            data.angle = (data.angle + 2) % 360;
             data.radius = MathUtility.lerp(data.radius, data.desired_radius, 0.05f); // 5% change a tick
             data.y = MathUtility.lerp(data.y, sphere_center.y(), 0.05f);
             data.update2D_path();
