@@ -2,6 +2,7 @@ package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.creation.Creation;
 import com.builtbroken.mc.api.IWorldPosition;
+import com.builtbroken.mc.api.recipe.MachineRecipeType;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketTile;
@@ -17,7 +18,6 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -176,6 +176,33 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
             {
                 //TODO create an item to molten metal list
                 //TODO allow melting broken tools as a Math.max(.1 * ingotValue, (tool.getDamage / tool.getMaxDamage) * ingotValue);
+                //TODO add handling for non-metal parts, for example turn sticks into char pile & tool handles into char
+                for(SmeltStack stack : smelting_items)
+                {
+                    //TODO maybe turn the item into a ball of fluid. This way the player knows the item is cooked but the system is full.
+                    if(stack.ticks >= 1000)
+                    {
+                        if(MachineRecipeType.FLUID_SMELTER.getHandler() != null && volume < (size.volume - Engine.INGOT_VOLUME))
+                        {
+                            Object out = MachineRecipeType.FLUID_SMELTER.getRecipe(stack);
+                            if(out instanceof FluidStack)
+                            {
+                                FluidStack fluidStack = (FluidStack) out;
+                                if(volume + fluidStack.amount <= size.volume && fill(ForgeDirection.UNKNOWN, fluidStack, false) >= fluidStack.amount)
+                                {
+                                    fill(ForgeDirection.UNKNOWN, fluidStack, true);
+                                    stack.stack.stackSize--;
+                                    if(stack.stack.stackSize <= 0) //TODO test
+                                        remove(stack);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        stack.ticks++;
+                    }
+                }
             }
 
 
