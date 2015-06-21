@@ -379,8 +379,8 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
         return getEnergy(stack) / max_energy;
     }
 
-    public static enum GloveModes
+    public enum GloveModes
     {
-        NONE, SELECTION, DELETE, HARVEST;
+        NONE, SELECTION, DELETE, HARVEST
     }
 }

@@ -42,8 +42,6 @@ public class Creation extends AbstractMod
     public static boolean CONTROL_SPHERE_ANIMATION_SERVER_SIDE = false;
     /** Number of buckets each meter of the sphere can contain, controlls volume of the sphere */
     public static int FORGE_BUCKETS_PER_METER = 16;
-    /** Conversion ratio of ingot to fluid volume, based on Tinkers *in theory* */
-    public static int INGOT_VOLUME = 144;
 
 
     //Content
