@@ -68,7 +68,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     protected ForgeSize size = ForgeSize.C;
 
     /** Fluid ID to Tank */
-    protected HashMap<Integer, FluidTank> tanks = new HashMap();
+    protected HashMap<String, FluidTank> tanks = new HashMap();
     /** List of entities to attack each tick */
     protected List<EntityLivingBase> entities_to_damage = new ArrayList();
     protected List<SmeltStack> smelting_items = new ArrayList();
@@ -129,7 +129,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     public void firstTick()
     {
         super.firstTick();
-        if(sphere_center == null)
+        if (sphere_center == null)
         {
             sphere_center = new IWorldPosition()
             {
@@ -177,23 +177,25 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                 //TODO create an item to molten metal list
                 //TODO allow melting broken tools as a Math.max(.1 * ingotValue, (tool.getDamage / tool.getMaxDamage) * ingotValue);
                 //TODO add handling for non-metal parts, for example turn sticks into char pile & tool handles into char
-                for(SmeltStack stack : smelting_items)
+                List<SmeltStack> remove_list = new ArrayList();
+                for (SmeltStack stack : smelting_items)
                 {
                     //TODO maybe turn the item into a ball of fluid. This way the player knows the item is cooked but the system is full.
-                    if(stack.ticks >= 1000)
+                    if (stack.ticks >= 20)
                     {
-                        if(MachineRecipeType.FLUID_SMELTER.getHandler() != null && volume < (size.volume - Engine.INGOT_VOLUME))
+                        if (MachineRecipeType.FLUID_SMELTER.getHandler() != null && volume < (size.volume - Engine.INGOT_VOLUME))
                         {
-                            Object out = MachineRecipeType.FLUID_SMELTER.getRecipe(stack);
-                            if(out instanceof FluidStack)
+                            Object out = MachineRecipeType.FLUID_SMELTER.getRecipe(stack.stack);
+                            if (out instanceof FluidStack)
                             {
                                 FluidStack fluidStack = (FluidStack) out;
-                                if(volume + fluidStack.amount <= size.volume && fill(ForgeDirection.UNKNOWN, fluidStack, false) >= fluidStack.amount)
+                                if (fill(ForgeDirection.UNKNOWN, fluidStack, false) >= fluidStack.amount)
                                 {
                                     fill(ForgeDirection.UNKNOWN, fluidStack, true);
                                     stack.stack.stackSize--;
-                                    if(stack.stack.stackSize <= 0) //TODO test
-                                        remove(stack);
+                                    if (stack.stack.stackSize <= 0) //TODO test
+                                        remove_list.add(stack);
+                                    System.out.println("Volume added, new volume of " + volume);
                                 }
                             }
                         }
@@ -202,6 +204,11 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                     {
                         stack.ticks++;
                     }
+                }
+
+                for(SmeltStack stack : remove_list)
+                {
+                    remove(stack);
                 }
             }
 
@@ -258,11 +265,16 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                         }
                         else if (object instanceof EntityItem)
                         {
-                            //TODO only grab smelt-able items, destroy the rest with fire
                             if (smelting_items.size() < MAX_STORED_ITEMS)
                             {
-                                addItem(((EntityItem) object).getEntityItem(), new Pos((Entity) object));
-                                ((Entity) object).setDead();
+                                Object o = MachineRecipeType.FLUID_SMELTER.getRecipe(((EntityItem) object).getEntityItem());
+                                if (o instanceof FluidStack && ((FluidStack) o).amount + volume <= size.volume)
+                                {
+                                    //TODO only grab smelt-able items, destroy the rest with fire
+
+                                    addItem(((EntityItem) object).getEntityItem(), new Pos((Entity) object));
+                                    ((Entity) object).setDead();
+                                }
                             }
                         }
                     }
@@ -324,6 +336,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
 
     protected void remove(SmeltStack stack)
     {
+        System.out.println("Removing stack " + stack);
         if (stack != null && stack.stack != null)
         {
             this.smelting_items.remove(stack);
@@ -375,7 +388,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
 
     public boolean hasTankForFluid(Fluid fluid)
     {
-        return fluid != null ? tanks.containsKey(fluid.getID()) : false;
+        return fluid != null ? tanks.containsKey(fluid.getName()) : false;
     }
 
     public FluidTank getTankForFluid(Fluid fluid)
@@ -384,9 +397,9 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
         {
             if (!hasTankForFluid(fluid))
             {
-                tanks.put(fluid.getID(), new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 100));
+                tanks.put(fluid.getName(), new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 100));
             }
-            return tanks.get(fluid.getID());
+            return tanks.get(fluid.getName());
         }
         return null;
     }
@@ -401,14 +414,10 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     @Override
     public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
     {
-        if (hasTankForFluid(resource))
-        {
-            int fill = getTankForFluid(resource.getFluid()).fill(resource, doFill);
-            if (doFill)
-                addVolume(fill);
-            return fill;
-        }
-        return 0;
+        int fill = getTankForFluid(resource.getFluid()).fill(resource, doFill);
+        if (doFill)
+            addVolume(fill);
+        return fill;
     }
 
     @Override
