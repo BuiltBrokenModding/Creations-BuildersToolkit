@@ -7,6 +7,7 @@ import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.lib.helper.MathUtility;
 import com.builtbroken.mc.lib.render.RenderItemOverlayUtility;
+import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.*;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -33,11 +35,14 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class TileFireChannelClient extends TileFireChannel
 {
+    protected static Model original_model;
     protected Model model;
     protected float model_yaw;
     protected float model_scale = 2f;
     protected float orbit_radius = 0;
     protected float render_volume = 0;
+
+    protected boolean invert = false;
 
     /** List of items orbiting the sphere */
     protected List<MoltenOrbitData> orbiting_items = new ArrayList();
@@ -46,7 +51,6 @@ public class TileFireChannelClient extends TileFireChannel
     public TileFireChannelClient()
     {
         super();
-        this.model = new Model(IcoSphereCreator.create(2));
         sphere_center = new IWorldPosition()
         {
             @Override
@@ -75,6 +79,15 @@ public class TileFireChannelClient extends TileFireChannel
         };
     }
 
+    protected Model getModel()
+    {
+        if(original_model == null)
+            original_model = new Model(IcoSphereCreator.create(2));
+        if(model == null)
+            model = original_model.clone();
+        return model;
+    }
+
     @Override
     public void update()
     {
@@ -94,6 +107,33 @@ public class TileFireChannelClient extends TileFireChannel
             data.y = MathUtility.lerp(data.y, sphere_center.y(), 0.05f);
             data.update2D_path();
         }
+
+        if (ticks % 3 == 0)
+        {
+            //Change model back to original slowly
+            float changePercent = .1f;
+            float randomChangeChance = .1f;
+
+            List<Pos> newVerts = new ArrayList();
+            List<Pos> oldVerts = getModel().meshes.get(0).getVertices();
+            for (int i = 0; i < oldVerts.size() && i < original_model.meshes.get(0).getVertices().size(); i++)
+            {
+                newVerts.add(oldVerts.get(i).lerp(original_model.meshes.get(0).getVertices().get(i), changePercent));
+            }
+
+            //Mess model up to give the impression of movement, slowly
+            for (int i = 0; i < newVerts.size(); i++)
+            {
+                if (worldObj.rand.nextFloat() <= randomChangeChance)
+                {
+                    Pos pos = new Pos().addRandom(worldObj.rand, .1);
+                    newVerts.set(i, newVerts.get(i).add(pos));
+                }
+            }
+
+            model.meshes.get(0).getVertices().clear();
+            model.meshes.get(0).getVertices().addAll(newVerts);
+        }
     }
 
     @Override
@@ -109,6 +149,18 @@ public class TileFireChannelClient extends TileFireChannel
     @Override
     public void renderDynamic(Pos pos, float frame, int pass)
     {
+        if (invert)
+        {
+            sphere_y_delta += .001 * size.r;
+            if (sphere_y_delta >= 0.1 * size.r)
+                invert = false;
+        } else
+        {
+            sphere_y_delta -= .001 * size.r;
+            if (sphere_y_delta <= -0.1 * size.r)
+                invert = true;
+        }
+
         //Init data
         for (OrbitData data : orbiting_items)
         {
@@ -123,7 +175,7 @@ public class TileFireChannelClient extends TileFireChannel
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(TileSphereMorph.lava_texture);
         GL11.glScalef(model_scale, model_scale, model_scale);
         GL11.glRotatef(model_yaw, 0, 1, 0);
-        model.render();
+        getModel().render();
         GL11.glPopMatrix();
     }
 
@@ -193,6 +245,14 @@ public class TileFireChannelClient extends TileFireChannel
     public void registerIcons(IIconRegister iconRegister)
     {
         //We have no icons to register
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        //TODO maybe cache?
+        return new Cube(-size.r, 0, -size.r, size.r, size.r + (size.r * 0.5), size.r).add(x(), y(), z()).toAABB();
     }
 
     /**

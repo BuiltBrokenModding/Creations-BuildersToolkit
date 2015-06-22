@@ -51,7 +51,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     //TODO add effect if power goes out, for example have the sphere degrade and turn into a solid clump of mass
 
     /** Limit of items that can orbit the forge */
-    public static int MAX_STORED_ITEMS = 10;
+    public static int MAX_STORED_ITEMS = 20;
 
     /** Current volume of stored fluids */
     protected int volume;
@@ -181,7 +181,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                 for (SmeltStack stack : smelting_items)
                 {
                     //TODO maybe turn the item into a ball of fluid. This way the player knows the item is cooked but the system is full.
-                    if (stack.ticks >= 20)
+                    if (stack.ticks >= 40)
                     {
                         if (MachineRecipeType.FLUID_SMELTER.getHandler() != null && volume < (size.volume - Engine.INGOT_VOLUME))
                         {
