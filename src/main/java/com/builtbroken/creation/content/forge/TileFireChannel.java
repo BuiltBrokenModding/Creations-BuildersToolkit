@@ -195,7 +195,6 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                                     stack.stack.stackSize--;
                                     if (stack.stack.stackSize <= 0) //TODO test
                                         remove_list.add(stack);
-                                    System.out.println("Volume added, new volume of " + volume);
                                 }
                             }
                         }
@@ -206,7 +205,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                     }
                 }
 
-                for(SmeltStack stack : remove_list)
+                for (SmeltStack stack : remove_list)
                 {
                     remove(stack);
                 }
@@ -336,7 +335,6 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
 
     protected void remove(SmeltStack stack)
     {
-        System.out.println("Removing stack " + stack);
         if (stack != null && stack.stack != null)
         {
             this.smelting_items.remove(stack);
@@ -509,7 +507,10 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
             }
             else if (id == 2)
             {
-                remove(ByteBufUtils.readItemStack(buf));
+                ItemStack stack = ByteBufUtils.readItemStack(buf);
+                if (stack.stackSize == 0)
+                    stack.stackSize = 1;
+                remove(stack);
                 return true;
             }
             else if (id == 3)
