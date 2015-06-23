@@ -6,7 +6,7 @@ import net.minecraft.block.material.Material;
 /**
  * Created by Dark on 6/9/2015.
  */
-public  abstract class TileElementChannel extends Tile
+public abstract class TileElementChannel extends Tile
 {
     public TileElementChannel(String name)
     {
