@@ -58,13 +58,13 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
                 {
                     if (prev_volume != 0)
                     {
-                        Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 3, getTank().getFluid()), this);
+                        Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 3, false), this);
                         prev_volume = 0;
                     }
                 }
-                else if (Math.abs(getTank().getFluidAmount() - prev_volume) > getTank().getCapacity())
+                else if (Math.abs(getTank().getFluidAmount() - prev_volume) > (getTank().getCapacity() * .05))
                 {
-                    Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 3, getTank().getFluid()), this);
+                    Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 3, true, getTank().getFluid()), this);
                     prev_volume = getTank().getFluidAmount();
                 }
             }
@@ -201,13 +201,13 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     @Override
     public boolean canFill(ForgeDirection from, Fluid fluid)
     {
-        return true;
+        return cast_stack != null && cast_stack.getItem() instanceof ICastItem && ((ICastItem) cast_stack.getItem()).allowFluid(cast_stack, fluid);
     }
 
     @Override
     public boolean canDrain(ForgeDirection from, Fluid fluid)
     {
-        return true;
+        return getTank() != null;
     }
 
     @Override
@@ -289,7 +289,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
             }
             else if (id == 3)
             {
-                if (getTank() != null)
+                if (getTank() != null && buf.readBoolean())
                 {
                     getTank().setFluid(FluidStack.loadFluidStackFromNBT(ByteBufUtils.readTag(buf)));
                 }
