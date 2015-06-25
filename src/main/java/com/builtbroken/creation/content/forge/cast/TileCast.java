@@ -224,7 +224,12 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     @Override
     public PacketTile getDescPacket()
     {
-        return new PacketTile(this, 0, cast_stack != null, output_stack != null, cast_stack != null ? output_stack : new ItemStack(Blocks.stone), output_stack != null ? output_stack : new ItemStack(Blocks.stone));
+        PacketTile packet = new PacketTile(this, 0, cast_stack != null, output_stack != null);
+        if (cast_stack != null)
+            packet.write(cast_stack);
+        if (output_stack != null)
+            packet.write(output_stack);
+        return packet;
     }
 
     @Override
