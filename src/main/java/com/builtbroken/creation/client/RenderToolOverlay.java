@@ -27,7 +27,7 @@ public class RenderToolOverlay
             if (mc.thePlayer != null)
             {
                 ItemStack stack = mc.thePlayer.getCurrentEquippedItem();
-                if (stack != null && stack.getItem() == Creation.glove)
+                if (stack != null && stack.getItem() == Creation.itemGlove)
                 {
                     ScaledResolution res = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
                     FontRenderer fontRender = mc.fontRenderer;

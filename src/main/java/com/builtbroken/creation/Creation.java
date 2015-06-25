@@ -2,9 +2,8 @@ package com.builtbroken.creation;
 
 import com.builtbroken.creation.content.ItemGlove;
 import com.builtbroken.creation.content.forge.TileFireChannel;
-import com.builtbroken.creation.content.tests.TileOrbit;
+import com.builtbroken.creation.content.forge.cast.ItemCast;
 import com.builtbroken.creation.content.tests.TileSphere;
-import com.builtbroken.creation.content.tests.TileSphereMorph;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
@@ -45,9 +44,10 @@ public class Creation extends AbstractMod
 
 
     //Content
-    public static Item glove;
+    public static Item itemGlove;
+    public static Item itemCast;
 
-    public static  Block blockFireChannel;
+    public static Block blockFireChannel;
 
     public static Block blockSphere;
     public static Block blockSphereMorph;
@@ -66,10 +66,13 @@ public class Creation extends AbstractMod
         creativeTab = new ModCreativeTab(DOMAIN);
         getManager().setTab(creativeTab);
 
-        glove = getManager().newItem(ItemGlove.class);
-        creativeTab.itemStack = new ItemStack(glove);
+        itemGlove = getManager().newItem(ItemGlove.class);
+        creativeTab.itemStack = new ItemStack(itemGlove);
+        itemCast = getManager().newItem(ItemCast.class);
+
+
         blockFireChannel = getManager().newBlock(TileFireChannel.class);
-        if(Engine.runningAsDev)
+        if (Engine.runningAsDev)
         {
             blockSphere = getManager().newBlock(TileSphere.class);
             //blockSphereMorph = getManager().newBlock(TileSphereMorph.class);

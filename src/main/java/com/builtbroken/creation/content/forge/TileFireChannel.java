@@ -185,7 +185,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                     {
                         if (MachineRecipeType.FLUID_SMELTER.getHandler() != null && volume < (size.volume - Engine.INGOT_VOLUME))
                         {
-                            Object out = MachineRecipeType.FLUID_SMELTER.getRecipe(stack.stack);
+                            Object out = MachineRecipeType.FLUID_SMELTER.getRecipe(0, 0, stack.stack);
                             if (out instanceof FluidStack)
                             {
                                 FluidStack fluidStack = (FluidStack) out;
@@ -266,7 +266,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                         {
                             if (smelting_items.size() < MAX_STORED_ITEMS)
                             {
-                                Object o = MachineRecipeType.FLUID_SMELTER.getRecipe(((EntityItem) object).getEntityItem());
+                                Object o = MachineRecipeType.FLUID_SMELTER.getRecipe(0, 0, ((EntityItem) object).getEntityItem());
                                 if (o instanceof FluidStack && ((FluidStack) o).amount + volume <= size.volume)
                                 {
                                     //TODO only grab smelt-able items, destroy the rest with fire

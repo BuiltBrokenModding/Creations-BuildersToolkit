@@ -52,7 +52,7 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
     @Override
     public void onPostInit()
     {
-        GameRegistry.addShapedRecipe(new ItemStack(Creation.glove), "lGl", "geg", "lll", 'l', Items.leather, 'e', Items.ender_pearl, 'g', Items.gold_nugget, 'G', Blocks.glass);
+        GameRegistry.addShapedRecipe(new ItemStack(Creation.itemGlove), "lGl", "geg", "lll", 'l', Items.leather, 'e', Items.ender_pearl, 'g', Items.gold_nugget, 'G', Blocks.glass);
     }
 
     @Override
