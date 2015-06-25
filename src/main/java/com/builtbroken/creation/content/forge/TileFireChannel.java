@@ -14,15 +14,15 @@ import com.builtbroken.mc.lib.world.edit.PlacementData;
 import com.builtbroken.mc.lib.world.heat.HeatedBlockRegistry;
 import com.builtbroken.mc.prefab.tile.Tile;
 import com.builtbroken.mc.prefab.tile.item.ItemBlockMetadata;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
@@ -119,10 +119,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     @Override
     public Tile newTile()
     {
-        if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
-            return new TileFireChannelClient();
-        else
-            return new TileFireChannel();
+        return new TileFireChannel();
     }
 
     @Override
@@ -211,11 +208,42 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                 }
             }
 
+            //Search for entities to attack
+            //TODO damage blocks in a larger radius if can burn
+            //Find all entities to attack in a radius
+            List list = world().getEntitiesWithinAABB(Entity.class, collisionAABB);
+            for (Object object : list)
+            {
+                if (object instanceof Entity && ((Entity) object).isEntityAlive())
+                {
+                    double d = ((Entity) object).getDistance(x(), y(), z());
+                    if (object instanceof EntityLivingBase && d <= current_radius)
+                    {
+                        if (!entities_to_damage.contains(object))
+                            entities_to_damage.add((EntityLivingBase) object);
+
+                    }
+                    else if (object instanceof EntityItem)
+                    {
+                        if (smelting_items.size() < MAX_STORED_ITEMS * size.r * 2)
+                        {
+                            Object o = MachineRecipeType.FLUID_SMELTER.getRecipe(0, 0, ((EntityItem) object).getEntityItem());
+                            if (o instanceof FluidStack && ((FluidStack) o).amount + volume <= size.volume)
+                            {
+                                //TODO only grab smelt-able items, destroy the rest with fire
+
+                                addItem(((EntityItem) object).getEntityItem(), new Pos((Entity) object));
+                                ((Entity) object).setDead();
+                            }
+                        }
+                    }
+                }
+            }
 
             if (ticks % 3 == 0)
             {
                 //Delay on volume packet updates to prevent spam
-                if (Math.abs(volume - prev_volume) > 500)
+                if (Math.abs(volume - prev_volume) > 100)
                 {
                     Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 3, volume), this);
                     prev_volume = volume;
@@ -241,38 +269,6 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                                 if (data != null && data.block() != null)
                                 {
                                     loc.setBlock(data.block(), data.meta() == -1 ? 0 : data.meta());
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //Search for entities to attack
-                //TODO damage blocks in a larger radius if can burn
-                //Find all entities to attack in a radius
-                List list = world().getEntitiesWithinAABB(Entity.class, collisionAABB);
-                for (Object object : list)
-                {
-                    if (object instanceof Entity && ((Entity) object).isEntityAlive())
-                    {
-                        double d = ((Entity) object).getDistance(x(), y(), z());
-                        if (object instanceof EntityLivingBase && d <= current_radius)
-                        {
-                            if (!entities_to_damage.contains(object))
-                                entities_to_damage.add((EntityLivingBase) object);
-
-                        }
-                        else if (object instanceof EntityItem)
-                        {
-                            if (smelting_items.size() < MAX_STORED_ITEMS)
-                            {
-                                Object o = MachineRecipeType.FLUID_SMELTER.getRecipe(0, 0, ((EntityItem) object).getEntityItem());
-                                if (o instanceof FluidStack && ((FluidStack) o).amount + volume <= size.volume)
-                                {
-                                    //TODO only grab smelt-able items, destroy the rest with fire
-
-                                    addItem(((EntityItem) object).getEntityItem(), new Pos((Entity) object));
-                                    ((Entity) object).setDead();
                                 }
                             }
                         }
@@ -323,7 +319,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     public void addItem(ItemStack stack, Pos source)
     {
         //TODO maybe extend based on size of sphere
-        if (smelting_items.size() < MAX_STORED_ITEMS)
+        if (smelting_items.size() < MAX_STORED_ITEMS * size.r * 2)
         {
             smelting_items.add(new SmeltStack(stack));
         }
@@ -377,6 +373,16 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     {
         percent_filled = Math.min(.01f, (volume / size.volume));
         current_radius = percent_filled * size.r;
+    }
+
+    protected void cleanUpdate()
+    {
+        volume = 0;
+        for (FluidTank tank : tanks.values())
+        {
+            volume += tank.getFluidAmount();
+        }
+        updateValues();
     }
 
     public boolean hasTankForFluid(FluidStack fluid)
@@ -536,5 +542,58 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
             stack.writeBytes(buf);
         }
         return packet;
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        if (smelting_items.size() > 0)
+        {
+            NBTTagList list = new NBTTagList();
+            for (SmeltStack stack : smelting_items)
+            {
+                list.appendTag(stack.save(new NBTTagCompound()));
+            }
+            nbt.setTag("items", list);
+        }
+        if (tanks.size() > 0)
+        {
+            NBTTagList list = new NBTTagList();
+            for (FluidTank tank : tanks.values())
+            {
+                if (tank.getFluidAmount() > 0)
+                    list.appendTag(tank.writeToNBT(new NBTTagCompound()));
+            }
+            nbt.setTag("tanks", list);
+        }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        if (nbt.hasKey("items"))
+        {
+            smelting_items.clear();
+            NBTTagList list = nbt.getTagList("items", 10);
+            for (int i = 0; i < list.tagCount(); i++)
+            {
+                smelting_items.add(new SmeltStack(list.getCompoundTagAt(i)));
+            }
+        }
+        if (nbt.hasKey("tanks"))
+        {
+            tanks.clear();
+            NBTTagList list = nbt.getTagList("tanks", 10);
+            for (int i = 0; i < list.tagCount(); i++)
+            {
+                FluidTank tank = new FluidTank(FluidContainerRegistry.BUCKET_VOLUME * 100);
+                tank.readFromNBT(list.getCompoundTagAt(i));
+                if (tank.getFluid() != null)
+                    tanks.put(tank.getFluid().getFluid().getName(), tank);
+            }
+            cleanUpdate();
+        }
     }
 }

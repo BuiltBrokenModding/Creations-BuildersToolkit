@@ -1,12 +1,14 @@
 package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.creation.content.tests.TileSphereMorph;
+import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.jlib.model.IcoSphereCreator;
 import com.builtbroken.jlib.model.Model;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.lib.helper.MathUtility;
 import com.builtbroken.mc.lib.render.RenderItemOverlayUtility;
+import com.builtbroken.mc.lib.render.RenderUtility;
 import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.*;
 import com.builtbroken.mc.prefab.tile.Tile;
@@ -143,12 +145,15 @@ public class TileFireChannelClient extends TileFireChannel
         }
     }
 
+    float p_scale = 0;
+
     @Override
     protected void updateValues()
     {
         percent_filled = render_volume / size.volume;
         current_radius = percent_filled * size.r;
-        model_scale = Math.max(0.3f, (size.ordinal() + 1) * (2 / 5) * percent_filled);
+        p_scale = (size.r * 2) * (2f / 5f) * percent_filled;
+        model_scale = Math.max(0.3f, p_scale);
         //20% larger than radius TODO adjust to avoid visual collision
         orbit_radius = current_radius + (current_radius * .2f) + 0.5f;
     }
@@ -168,6 +173,9 @@ public class TileFireChannelClient extends TileFireChannel
             if (sphere_y_delta <= -0.1 * size.r)
                 invert = true;
         }
+
+        RenderUtility.renderFloatingText("S: " + model_scale + "  PS:" + p_scale, pos.x(), pos.y() + 3, pos.z(), Colors.WHITE.toInt());
+        RenderUtility.renderFloatingText("V: " + volume + "  P:" + percent_filled + "  R:" + current_radius, pos.x(), pos.y() + 2, pos.z(), Colors.WHITE.toInt());
 
         //Init data
         for (OrbitData data : orbiting_items)

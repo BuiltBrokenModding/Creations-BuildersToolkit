@@ -28,6 +28,11 @@ public class SmeltStack implements IByteBufWriter, ISave
         this.ticks = buf.readInt();
     }
 
+    public SmeltStack(NBTTagCompound tag)
+    {
+        load(tag);
+    }
+
     @Override
     public ByteBuf writeBytes(ByteBuf buf)
     {

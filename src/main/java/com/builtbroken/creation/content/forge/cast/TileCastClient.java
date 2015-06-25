@@ -53,17 +53,23 @@ public class TileCastClient extends TileCast
     @SideOnly(Side.CLIENT)
     public void renderDynamic(Pos pos, float frame, int pass)
     {
-        RenderItemOverlayUtility.renderIcon(Blocks.lava.getIcon(0, 0), 0, pos.add(0.5f, .73f, 0.5f), ForgeDirection.UP, false);
-
         if (cast_stack != null)
         {
             if (cast_stack.getItem() instanceof I2DCastItem)
             {
-                RenderItemOverlayUtility.renderIcon(((I2DCastItem) cast_stack.getItem()).getCastIcon(cast_stack), 1, pos.add(0.5f, .75f, 0.5f), ForgeDirection.UP, true);
+                RenderItemOverlayUtility.renderIcon(((I2DCastItem) cast_stack.getItem()).getCastIcon(cast_stack), 1, pos.add(0.5f, .70f, 0.5f), ForgeDirection.UP, true);
             }
-            if (getTank() != null)
+            if (output_stack != null)
             {
-
+                RenderItemOverlayUtility.renderIcon(output_stack.getIconIndex(), output_stack.getItemSpriteNumber(), 0.49f, pos.add(0.5f, .725f, 0.5f), ForgeDirection.UP, true);
+            }
+            else if (getTank() != null && getTank().getFluid() != null && getTank().getFluid().getFluid() != null && getTank().getFluidAmount() > 0)
+            {
+                float percent = getTank().getFluidAmount() / getTank().getCapacity();
+                IIcon icon = getTank().getFluid().getFluid().getIcon();
+                if (icon == null)
+                    icon = Blocks.lava.getIcon(0, 0);
+                RenderItemOverlayUtility.renderIcon(icon, 0, pos.add(0.5f, .71f + (.045 * percent), 0.5f), ForgeDirection.UP, false);
             }
         }
     }

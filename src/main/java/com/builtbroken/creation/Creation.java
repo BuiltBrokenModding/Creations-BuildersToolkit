@@ -34,10 +34,8 @@ public class Creation extends AbstractMod
     public static ModCreativeTab creativeTab;
 
     //Settings
-    /** If true it will force animation updates to be server side only */
-    public static boolean CONTROL_SPHERE_ANIMATION_SERVER_SIDE = false;
     /** Number of buckets each meter of the sphere can contain, controlls volume of the sphere */
-    public static int FORGE_BUCKETS_PER_METER = 16;
+    public static int FORGE_BUCKETS_PER_METER = 2;
 
 
     //Content

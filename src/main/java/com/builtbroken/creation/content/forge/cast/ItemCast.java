@@ -128,8 +128,8 @@ public class ItemCast extends Item implements ICastItem, I2DCastItem, IPostInit
         Cast.INGOT.icon = reg.registerIcon(Creation.PREFIX + "cast_ingot");
         Cast.NUGGET.icon = reg.registerIcon(Creation.PREFIX + "cast_nugget");
 
-        Cast.INGOT.icon = reg.registerIcon(Creation.PREFIX + "cast_ingot_2");
-        Cast.NUGGET.icon = reg.registerIcon(Creation.PREFIX + "cast_nugget_2");
+        Cast.INGOT.icon_2 = reg.registerIcon(Creation.PREFIX + "cast_ingot_2");
+        Cast.NUGGET.icon_2 = reg.registerIcon(Creation.PREFIX + "cast_nugget_2");
     }
 
     @Override

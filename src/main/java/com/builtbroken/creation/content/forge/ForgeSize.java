@@ -12,18 +12,18 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
  */
 public enum ForgeSize
 {
-    /** 1 */A,
-    /** 2 */B,
-    /** 3 */C,
-    /** 4 */D,
-    /** 5 */E,
-    /** 6 */F,
-    /** 7 */G,
-    /** 8 */H,
-    /** 9 */I;
+    /** 1 */A(1),
+    /** 2 */B(2),
+    /** 3 */C(3),
+    /** 4 */D(4),
+    /** 5 */E(5),
+    /** 6 */F(6),
+    /** 7 */G(7),
+    /** 8 */H(8),
+    /** 9 */I(9);
 
     /** Radius of the sphere */
-    public final int r;
+    public final float r;
     /** Max volume of the sphere */
     public final int volume;
     /** Damage inflicted to entities, final value is based on distance from center */
@@ -34,10 +34,9 @@ public enum ForgeSize
     /** Collision box size of the sphere */
     private final Cube collision_cube;
 
-    ForgeSize()
+    ForgeSize(float size)
     {
-        int size = ordinal() + 1;
-        this.r = size / 2;
+        this.r = size / 2f;
         this.damage = r;
         this.volume = (int) ((((4 * Math.PI * r * r * r) / 3) * Creation.FORGE_BUCKETS_PER_METER) * FluidContainerRegistry.BUCKET_VOLUME);
         this.center = new Pos(0, r, 0);
