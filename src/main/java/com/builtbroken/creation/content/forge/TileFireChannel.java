@@ -14,7 +14,7 @@ import com.builtbroken.mc.lib.world.edit.PlacementData;
 import com.builtbroken.mc.lib.world.heat.HeatedBlockRegistry;
 import com.builtbroken.mc.prefab.tile.Tile;
 import com.builtbroken.mc.prefab.tile.item.ItemBlockMetadata;
-import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
@@ -119,7 +119,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     @Override
     public Tile newTile()
     {
-        if (FMLClientHandler.instance().getSide() == Side.CLIENT)
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
             return new TileFireChannelClient();
         else
             return new TileFireChannel();

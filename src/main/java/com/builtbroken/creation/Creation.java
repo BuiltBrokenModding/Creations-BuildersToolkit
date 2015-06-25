@@ -1,10 +1,7 @@
 package com.builtbroken.creation;
 
 import com.builtbroken.creation.content.ItemGlove;
-import com.builtbroken.creation.content.forge.TileFireChannel;
 import com.builtbroken.creation.content.forge.cast.ItemCast;
-import com.builtbroken.creation.content.tests.TileSphere;
-import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
@@ -29,7 +26,7 @@ public class Creation extends AbstractMod
     public static final String DOMAIN = "creationsbt";
     public static final String PREFIX = DOMAIN + ":";
 
-    @SidedProxy(clientSide = "com.builtbroken.creation.client.ClientProxy", serverSide = "com.builtbroken.creation.CommonProxy")
+    @SidedProxy(clientSide = "com.builtbroken.creation.client.ClientProxy", serverSide = "com.builtbroken.creation.ServerProxy")
     public static CommonProxy proxy;
 
     @Instance(DOMAIN)
@@ -48,10 +45,7 @@ public class Creation extends AbstractMod
     public static Item itemCast;
 
     public static Block blockFireChannel;
-
-    public static Block blockSphere;
-    public static Block blockSphereMorph;
-    public static Block blockOrbitTest;
+    public static Block blockCast;
 
     public Creation()
     {
@@ -61,23 +55,15 @@ public class Creation extends AbstractMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent e)
     {
-        super.preInit(e);
-        // TODO re-enabled when we have more items
         creativeTab = new ModCreativeTab(DOMAIN);
         getManager().setTab(creativeTab);
+        super.preInit(e);
+        // TODO re-enabled when we have more items
+
 
         itemGlove = getManager().newItem(ItemGlove.class);
         creativeTab.itemStack = new ItemStack(itemGlove);
         itemCast = getManager().newItem(ItemCast.class);
-
-
-        blockFireChannel = getManager().newBlock(TileFireChannel.class);
-        if (Engine.runningAsDev)
-        {
-            blockSphere = getManager().newBlock(TileSphere.class);
-            //blockSphereMorph = getManager().newBlock(TileSphereMorph.class);
-            //blockOrbitTest = getManager().newBlock(TileOrbit.class);
-        }
 
     }
 

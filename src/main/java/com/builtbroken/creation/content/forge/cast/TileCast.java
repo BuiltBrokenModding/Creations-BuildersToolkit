@@ -5,17 +5,18 @@ import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.PacketType;
+import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;
-import cpw.mods.fml.common.FMLCommonHandler;
+import com.builtbroken.mc.prefab.tile.item.ItemBlockMetadata;
 import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.*;
 
@@ -40,10 +41,11 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     protected int cooling_ticks = 0;
     protected int prev_volume = 0;
 
-
     public TileCast()
     {
         super("moltenFluidCast", Material.rock);
+        this.itemBlock = ItemBlockMetadata.class;
+        this.bounds = new Cube(0, 0, 0, 1, .7, 1);
     }
 
     @Override
@@ -78,7 +80,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
                 {
                     output_stack = ((ICastItem) cast_stack.getItem()).doCast(cast_stack, getTank().getFluid(), this);
                     getTank().setFluid(null);
-                    Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 2, output_stack != null, output_stack != null ? output_stack : new ItemStack(Blocks.air)), this);
+                    Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 2, output_stack != null, output_stack != null ? output_stack : new ItemStack(Blocks.stone)), this);
                 }
             }
         }
@@ -93,7 +95,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
             tank = new FluidTank(((ICastItem) cast_stack.getItem()).getFluidCapacity(cast_stack));
 
         if (isServer())
-            Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 1, cast_stack != null, cast_stack != null ? cast_stack : new ItemStack(Blocks.air)), this);
+            Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 1, cast_stack != null, cast_stack != null ? cast_stack : new ItemStack(Blocks.stone)), this);
     }
 
     /** Tank storing the fluid */
@@ -126,7 +128,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
                 player.inventory.setInventorySlotContents(player.inventory.currentItem, output_stack);
                 output_stack = null;
                 player.inventoryContainer.detectAndSendChanges();
-                Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 2, output_stack != null, output_stack != null ? output_stack : new ItemStack(Blocks.air)), this);
+                Engine.instance.packetHandler.sendToAllAround(new PacketTile(this, 2, output_stack != null, output_stack != null ? output_stack : new ItemStack(Blocks.stone)), this);
             }
             if (cast_stack != null)
             {
@@ -141,15 +143,15 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
                 return true;
             if (cast_stack == null)
             {
-                if (player.getItemInUse().stackSize > 1)
+                if (player.getHeldItem().stackSize > 1)
                 {
-                    setCast(player.getItemInUse().copy());
+                    setCast(player.getHeldItem().copy());
                     cast_stack.stackSize = 1;
                     player.getItemInUse().stackSize--;
                 }
                 else
                 {
-                    setCast(player.getItemInUse());
+                    setCast(player.getHeldItem());
                     player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
                 }
             }
@@ -165,10 +167,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     @Override
     public Tile newTile()
     {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-            return new TileCastClient();
-        else
-            return new TileCast();
+        return new TileCast();
     }
 
     @Override
@@ -225,7 +224,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     @Override
     public PacketTile getDescPacket()
     {
-        return new PacketTile(this, 0, cast_stack != null, output_stack != null, cast_stack != null ? output_stack : new ItemStack(Blocks.air), output_stack != null ? output_stack : new ItemStack(Blocks.air));
+        return new PacketTile(this, 0, cast_stack != null, output_stack != null, cast_stack != null ? output_stack : new ItemStack(Blocks.stone), output_stack != null ? output_stack : new ItemStack(Blocks.stone));
     }
 
     @Override
@@ -297,5 +296,43 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
             }
         }
         return false;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        cooling_ticks = nbt.getInteger("coolingTicks");
+        if (nbt.hasKey("castStack"))
+        {
+            cast_stack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("castStack"));
+        }
+        if (nbt.hasKey("outputStack"))
+        {
+            output_stack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("outputStack"));
+        }
+        if (getTank() != null && nbt.hasKey("fluidTank"))
+        {
+            getTank().readFromNBT(nbt.getCompoundTag("fluidTank"));
+        }
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        nbt.setInteger("coolingTicks", cooling_ticks);
+        if (cast_stack != null)
+        {
+            nbt.setTag("castStack", cast_stack.writeToNBT(new NBTTagCompound()));
+        }
+        if (output_stack != null)
+        {
+            nbt.setTag("outputStack", output_stack.writeToNBT(new NBTTagCompound()));
+        }
+        if (getTank() != null)
+        {
+            nbt.setTag("fluidTank", getTank().writeToNBT(new NBTTagCompound()));
+        }
     }
 }

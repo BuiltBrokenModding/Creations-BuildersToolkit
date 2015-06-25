@@ -13,6 +13,10 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -24,6 +28,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+
+import java.util.List;
 
 /**
  * Created by Dark on 6/23/2015.
@@ -73,38 +79,6 @@ public class ItemCast extends Item implements ICastItem, I2DCastItem, IPostInit
     }
 
     @Override
-    public IIcon getIconFromDamage(int meta)
-    {
-        if (meta == 0)
-            return Items.iron_ingot.getIconFromDamage(0);
-        else if (meta == 1)
-            return Items.gold_nugget.getIconFromDamage(0);
-        return this.itemIcon;
-    }
-
-    @Override
-    public IIcon getCastIcon(ItemStack stack)
-    {
-        //TODO replace temp icons
-        if (Cast.get(stack) == Cast.INGOT)
-            return Items.iron_ingot.getIconFromDamage(0);
-        else if (Cast.get(stack) == Cast.NUGGET)
-            return Items.gold_nugget.getIconFromDamage(0);
-        return null;
-    }
-
-    @Override
-    public IIcon getCastedItemIcon(ItemStack stack, Fluid fluid)
-    {
-        //TODO replace temp icons
-        if (Cast.get(stack) == Cast.INGOT)
-            return Items.iron_ingot.getIconFromDamage(0);
-        else if (Cast.get(stack) == Cast.NUGGET)
-            return Items.gold_nugget.getIconFromDamage(0);
-        return null;
-    }
-
-    @Override
     public boolean allowFluid(ItemStack stack, Fluid fluid)
     {
         if (MachineRecipeType.FLUID_CAST.getHandler() != null)
@@ -147,12 +121,60 @@ public class ItemCast extends Item implements ICastItem, I2DCastItem, IPostInit
         return stack;
     }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister reg)
+    {
+        Cast.INGOT.icon = reg.registerIcon(Creation.PREFIX + "cast_ingot");
+        Cast.NUGGET.icon = reg.registerIcon(Creation.PREFIX + "cast_nugget");
+
+        Cast.INGOT.icon = reg.registerIcon(Creation.PREFIX + "cast_ingot_2");
+        Cast.NUGGET.icon = reg.registerIcon(Creation.PREFIX + "cast_nugget_2");
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIconFromDamage(int meta)
+    {
+        if (meta == 0)
+            return Cast.INGOT.icon;
+        else if (meta == 1)
+            return Cast.NUGGET.icon;
+        return this.itemIcon;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getCastIcon(ItemStack stack)
+    {
+        if (stack.getItemDamage() == 0)
+            return Cast.INGOT.icon_2;
+        else if (stack.getItemDamage() == 1)
+            return Cast.NUGGET.icon_2;
+        return this.itemIcon;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void getSubItems(Item item, CreativeTabs tab, List list)
+    {
+        for (int i = 0; i < Cast.values().length; i++)
+        {
+            list.add(new ItemStack(item, 1, i));
+        }
+    }
+
     public enum Cast
     {
         INGOT(Engine.INGOT_VOLUME),
         NUGGET(Engine.INGOT_VOLUME / 16);
 
         final int volume;
+
+        @SideOnly(Side.CLIENT)
+        public IIcon icon;
+        @SideOnly(Side.CLIENT)
+        public IIcon icon_2;
 
         Cast(int volume)
         {

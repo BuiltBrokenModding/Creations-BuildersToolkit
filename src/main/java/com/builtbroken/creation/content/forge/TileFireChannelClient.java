@@ -9,6 +9,7 @@ import com.builtbroken.mc.lib.helper.MathUtility;
 import com.builtbroken.mc.lib.render.RenderItemOverlayUtility;
 import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.*;
+import com.builtbroken.mc.prefab.tile.Tile;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -32,7 +33,6 @@ import java.util.List;
  * Version of the Forge for clint use only. Used to cut down on code in the main class for the tile.
  * Created by Dark on 6/15/2015.
  */
-@SideOnly(Side.CLIENT)
 public class TileFireChannelClient extends TileFireChannel
 {
     protected static Model original_model;
@@ -79,11 +79,18 @@ public class TileFireChannelClient extends TileFireChannel
         };
     }
 
+    @Override
+    public Tile newTile()
+    {
+        return new TileFireChannelClient();
+    }
+
+
     protected Model getModel()
     {
-        if(original_model == null)
+        if (original_model == null)
             original_model = new Model(IcoSphereCreator.create(2));
-        if(model == null)
+        if (model == null)
             model = original_model.clone();
         return model;
     }
@@ -154,7 +161,8 @@ public class TileFireChannelClient extends TileFireChannel
             sphere_y_delta += .001 * size.r;
             if (sphere_y_delta >= 0.1 * size.r)
                 invert = false;
-        } else
+        }
+        else
         {
             sphere_y_delta -= .001 * size.r;
             if (sphere_y_delta <= -0.1 * size.r)
