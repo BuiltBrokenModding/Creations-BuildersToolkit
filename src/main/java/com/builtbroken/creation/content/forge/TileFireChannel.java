@@ -249,7 +249,7 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                     prev_volume = volume;
                 }
 
-                //TODO degrade sphere if collision is
+                //TODO degrade sphere if collision is detected
 
                 //Detect for collision with blocks, and damage blocks with heat effects
                 boolean collision = false;
@@ -491,7 +491,6 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
             //Sync all packet
             if (id == 0)
             {
-
                 size = ForgeSize.values()[buf.readInt()];
                 volume = buf.readInt();
 

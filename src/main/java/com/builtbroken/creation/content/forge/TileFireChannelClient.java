@@ -1,16 +1,15 @@
 package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.creation.content.tests.TileSphereMorph;
-import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.jlib.model.IcoSphereCreator;
 import com.builtbroken.jlib.model.Model;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.lib.helper.MathUtility;
 import com.builtbroken.mc.lib.render.RenderItemOverlayUtility;
-import com.builtbroken.mc.lib.render.RenderUtility;
 import com.builtbroken.mc.lib.transform.region.Cube;
-import com.builtbroken.mc.lib.transform.vector.*;
+import com.builtbroken.mc.lib.transform.vector.Point;
+import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -25,10 +24,10 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
-import com.builtbroken.mc.lib.transform.vector.Point;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -173,9 +172,6 @@ public class TileFireChannelClient extends TileFireChannel
             if (sphere_y_delta <= -0.1 * size.r)
                 invert = true;
         }
-
-        RenderUtility.renderFloatingText("S: " + model_scale + "  PS:" + p_scale, pos.x(), pos.y() + 3, pos.z(), Colors.WHITE.toInt());
-        RenderUtility.renderFloatingText("V: " + volume + "  P:" + percent_filled + "  R:" + current_radius, pos.x(), pos.y() + 2, pos.z(), Colors.WHITE.toInt());
 
         //Init data
         for (OrbitData data : orbiting_items)
