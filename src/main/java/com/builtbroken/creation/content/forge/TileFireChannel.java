@@ -3,6 +3,7 @@ package com.builtbroken.creation.content.forge;
 import com.builtbroken.creation.Creation;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.recipe.MachineRecipeType;
+import com.builtbroken.mc.api.tile.ILinkable;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketTile;
@@ -20,11 +21,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.*;
@@ -45,7 +49,7 @@ import java.util.List;
  * <p/>
  * Created by Dark on 6/9/2015.
  */
-public class TileFireChannel extends TileElementChannel implements IFluidHandler, IWorldPosition, IPacketIDReceiver
+public class TileFireChannel extends TileElementChannel implements IFluidHandler, IWorldPosition, IPacketIDReceiver, ILinkable
 {
     //TODO add power drain when energy code is added
     //TODO add effect if power goes out, for example have the sphere degrade and turn into a solid clump of mass
@@ -72,6 +76,8 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
     /** List of entities to attack each tick */
     protected List<EntityLivingBase> entities_to_damage = new ArrayList();
     protected List<SmeltStack> smelting_items = new ArrayList();
+
+    protected List<Pos> linked_tiles = new ArrayList();
 
 
     /** Center of sphere, used to set the point of orbit */
@@ -205,6 +211,24 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
                 for (SmeltStack stack : remove_list)
                 {
                     remove(stack);
+                }
+
+                Iterator<Pos> it = linked_tiles.iterator();
+                while (it.hasNext())
+                {
+                    Pos pos = it.next();
+                    if (pos == null || !pos.isAboveBedrock())
+                        it.remove();
+                    else
+                    {
+                        TileEntity tile = pos.getTileEntity(getWorldObj());
+                        if (tile == null)
+                            it.remove();
+                        if (tile instanceof ISidedInventory)
+                        {
+
+                        }
+                    }
                 }
             }
 
@@ -594,5 +618,41 @@ public class TileFireChannel extends TileElementChannel implements IFluidHandler
             }
             cleanUpdate();
         }
+    }
+
+    @Override
+    public String link(Location pos, short pass)
+    {
+        //Validate location data
+        if (pos.world != world())
+            return "link.error.world.match";
+        if (!pos.isAboveBedrock())
+            return "link.error.pos.invalid";
+        if (distance(pos) > size.r * 4)
+            return "link.error.pos.distance.max";
+
+        MovingObjectPosition hit = pos.rayTraceBlocks(worldObj, new Pos(sphere_center.x(), sphere_center.y(), sphere_center.z()));
+        if (hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
+            return "link.error.pos.line_of_sight";
+
+        if (!linked_tiles.contains(pos.toPos()))
+        {
+            TileEntity tile = pos.getTileEntity();
+            if (tile instanceof ISidedInventory)
+            {
+                linked_tiles.add(pos.toPos());
+                return "";
+            }
+            else if (tile instanceof IFluidHandler)
+            {
+                linked_tiles.add(pos.toPos());
+                return "";
+            }
+            else
+            {
+                return "link.error.tile.invalid";
+            }
+        }
+        return "link.error.tile.already.added";
     }
 }

@@ -1,6 +1,6 @@
 package com.builtbroken.creation;
 
-import com.builtbroken.creation.content.ItemGlove;
+import com.builtbroken.creation.content.glove.ItemGlove;
 import com.builtbroken.creation.content.forge.cast.ItemCast;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.AbstractProxy;
