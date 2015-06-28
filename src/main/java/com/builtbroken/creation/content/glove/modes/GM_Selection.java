@@ -34,13 +34,13 @@ public class GM_Selection extends GloveMode
 
             if (player.isSneaking())
             {
-                select.setPointOne(location.toVector3());
+                select.setPointOne(location.toPos());
                 if (Engine.runningAsDev)
                     player.addChatComponentMessage(new ChatComponentText(("Point One: " + select)));
             }
             else
             {
-                select.setPointTwo(location.toVector3());
+                select.setPointTwo(location.toPos());
                 if (Engine.runningAsDev)
                     player.addChatComponentMessage(new ChatComponentText(("Point Two: " + select)));
             }

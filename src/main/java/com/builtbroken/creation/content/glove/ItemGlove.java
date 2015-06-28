@@ -105,11 +105,11 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
         return getGloveMode(stack).onItemUse(stack, player, new Location(world, x, y, z), side, hitX, hitY, hitZ);
     }
 
-
-    /**
-     * Handles the selection of two points
-     */
-
+    @Override
+    public void onUsingTick(ItemStack stack, EntityPlayer player, int ticks_left)
+    {
+        getGloveMode(stack).onUsingTick(stack, player, ticks_left);
+    }
 
     @Override
     public int cycleMode(ItemStack stack, EntityPlayer player, int delta)
@@ -126,10 +126,10 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
 
     public GloveMode getGloveMode(ItemStack stack)
     {
-        int meta = stack.getItemDamage();
-        if (meta >= 0 && meta < GloveModes.values().length)
+        int mode = getMode(stack);
+        if (mode >= 0 && mode < GloveModes.values().length)
         {
-            return GloveModes.values()[meta].mode;
+            return GloveModes.values()[mode].mode;
         }
         return GloveModes.NONE.mode;
     }
