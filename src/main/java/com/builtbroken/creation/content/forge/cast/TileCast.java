@@ -188,7 +188,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     @Override
     public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
     {
-        return getTank() != null && resource != null && getTank().getFluid() != null && getTank().getFluid().getFluidID() == resource.getFluidID() ? getTank().drain(resource.amount, doDrain) : null;
+        return getTank() != null && resource != null && getTank().getFluid() != null && getTank().getFluid().fluidID == resource.fluidID ? getTank().drain(resource.amount, doDrain) : null;
     }
 
     @Override

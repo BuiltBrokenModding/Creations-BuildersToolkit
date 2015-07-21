@@ -168,6 +168,8 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
 
     public boolean installMode(ItemStack stack, int mode)
     {
+        if (mode == 0 || mode == 1)
+            return false;
         if (mode >= 0 && mode < GloveModes.values().length)
         {
             GloveModes enum_mode = GloveModes.values()[mode];
@@ -175,6 +177,9 @@ public class ItemGlove extends Item implements IModeItem.IModeScrollItem, IPostI
             {
                 //TODO change save format to allow modes to save data
                 NBTTagCompound tag;
+                if (stack.getTagCompound() == null)
+                    stack.setTagCompound(new NBTTagCompound());
+
                 if (stack.getTagCompound().hasKey("modes"))
                     tag = stack.getTagCompound().getCompoundTag("modes");
                 else
