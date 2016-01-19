@@ -24,7 +24,7 @@ plugins {
   id "net.franz-becker.gradle-lombok" version "1.3"
 }
 
-apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScripts/buildScripts/index.gradle'
+apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScripts/buildScripts/index/index.gradle'
 apply plugin: 'curseforge'
 apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'jacoco'
@@ -32,36 +32,7 @@ apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScr
 
 println "Current Minecraft version = " + minecraft.apiVersion
 
-def currentJvm = org.gradle.internal.jvm.Jvm.current()
-println "Current Java version = " + currentJvm
-
-println "version = " + version
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in text files, not binary ones.
-    from(sourceSets.main.resources.srcDirs) {
-        include '**/*.info'
-
-        // replace version and MCVersion
-        // forge version is also accessible via project.minecraftforgeVersion
-        // it contains the full minecraft version, including buildNumber
-        expand 'version': project.version, 'mcversion': project.minecraft.version
-    }
-
-    // copy everything else, thats not text
-    from(sourceSets.main.resources.srcDirs) { exclude '**/*.info' }
-}
-
 dependencies {
     compile 'com.google.gag:gag:1.0.1'
     compile "dev.builtbroken.voltzengine:VoltzEngine:1.7.10-0.6.1+:deobf-dev"
-}
-
-def getDate() {
-    def date = new Date()
-    def formattedDate = date.format('yyyyMMddHHmmss')
-    return formattedDate
 }
