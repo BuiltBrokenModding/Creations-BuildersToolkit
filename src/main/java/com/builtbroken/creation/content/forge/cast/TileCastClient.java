@@ -1,7 +1,7 @@
 package com.builtbroken.creation.content.forge.cast;
 
 import com.builtbroken.creation.Creation;
-import com.builtbroken.mc.api.items.I2DCastItem;
+import com.builtbroken.mc.api.items.crafting.I2DCastItem;
 import com.builtbroken.mc.lib.render.RenderItemOverlayUtility;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;

@@ -1,8 +1,8 @@
 package com.builtbroken.creation.content.forge.cast;
 
 import com.builtbroken.creation.Creation;
-import com.builtbroken.mc.api.items.I2DCastItem;
-import com.builtbroken.mc.api.items.ICastItem;
+import com.builtbroken.mc.api.items.crafting.I2DCastItem;
+import com.builtbroken.mc.api.items.crafting.ICastItem;
 import com.builtbroken.mc.api.recipe.ICastingRecipe;
 import com.builtbroken.mc.api.recipe.MachineRecipeType;
 import com.builtbroken.mc.core.Engine;

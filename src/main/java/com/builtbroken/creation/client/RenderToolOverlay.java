@@ -1,7 +1,7 @@
 package com.builtbroken.creation.client;
 
 import com.builtbroken.creation.Creation;
-import com.builtbroken.mc.api.items.IModeItem;
+import com.builtbroken.mc.api.items.tools.IModeItem;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.Minecraft;

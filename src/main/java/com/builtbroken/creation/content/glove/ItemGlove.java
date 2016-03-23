@@ -3,7 +3,7 @@ package com.builtbroken.creation.content.glove;
 import com.builtbroken.creation.Creation;
 import com.builtbroken.creation.content.glove.modes.GloveMode;
 import com.builtbroken.jlib.lang.TextColor;
-import com.builtbroken.mc.api.items.IModeItem;
+import com.builtbroken.mc.api.items.tools.IModeItem;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.lib.transform.vector.Location;

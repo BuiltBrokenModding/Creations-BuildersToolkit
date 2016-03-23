@@ -1,6 +1,6 @@
 package com.builtbroken.creation.content.forge.cast;
 
-import com.builtbroken.mc.api.items.ICastItem;
+import com.builtbroken.mc.api.items.crafting.ICastItem;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketTile;
@@ -188,7 +188,7 @@ public class TileCast extends Tile implements IFluidHandler, IPacketIDReceiver
     @Override
     public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
     {
-        return getTank() != null && resource != null && getTank().getFluid() != null && getTank().getFluid().fluidID == resource.fluidID ? getTank().drain(resource.amount, doDrain) : null;
+        return getTank() != null && resource != null && getTank().getFluid() != null && getTank().getFluid().getFluidID() == resource.getFluidID() ? getTank().drain(resource.amount, doDrain) : null;
     }
 
     @Override

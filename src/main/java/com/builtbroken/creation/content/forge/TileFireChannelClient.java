@@ -1,12 +1,13 @@
 package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.creation.content.tests.TileSphereMorph;
+import com.builtbroken.jlib.helpers.MathHelper;
 import com.builtbroken.jlib.model.IcoSphereCreator;
-import com.builtbroken.jlib.model.Model;
+import com.builtbroken.jlib.model.Vert;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.core.network.packet.PacketType;
-import com.builtbroken.mc.lib.helper.MathUtility;
 import com.builtbroken.mc.lib.render.RenderItemOverlayUtility;
+import com.builtbroken.mc.lib.render.model.Model;
 import com.builtbroken.mc.lib.transform.region.Cube;
 import com.builtbroken.mc.lib.transform.vector.Point;
 import com.builtbroken.mc.lib.transform.vector.Pos;
@@ -104,15 +105,15 @@ public class TileFireChannelClient extends TileFireChannel
         //Update animation
         if (Math.abs(volume - render_volume) > 0.01f)
         {
-            render_volume = MathUtility.lerp(render_volume, volume, 0.05f);
+            render_volume = MathHelper.lerp(render_volume, volume, 0.05f);
             updateValues();
         }
         for (MoltenOrbitData data : orbiting_items)
         {
             data.desired_radius = orbit_radius;
             data.angle = (data.angle + 2) % 360;
-            data.radius = MathUtility.lerp(data.radius, data.desired_radius, 0.05f); // 5% change a tick
-            data.y = MathUtility.lerp(data.y, sphere_center.y(), 0.05f);
+            data.radius = MathHelper.lerp(data.radius, data.desired_radius, 0.05f); // 5% change a tick
+            data.y = MathHelper.lerp(data.y, sphere_center.y(), 0.05f);
             data.update2D_path();
         }
 
@@ -122,8 +123,8 @@ public class TileFireChannelClient extends TileFireChannel
             float changePercent = .1f;
             float randomChangeChance = .1f;
 
-            List<Pos> newVerts = new ArrayList();
-            List<Pos> oldVerts = getModel().meshes.get(0).getVertices();
+            List<Vert> newVerts = new ArrayList();
+            List<Vert> oldVerts = getModel().meshes.get(0).getVertices();
             for (int i = 0; i < oldVerts.size() && i < original_model.meshes.get(0).getVertices().size(); i++)
             {
                 newVerts.add(oldVerts.get(i).lerp(original_model.meshes.get(0).getVertices().get(i), changePercent));
