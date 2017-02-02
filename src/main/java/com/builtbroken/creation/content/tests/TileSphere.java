@@ -3,7 +3,7 @@ package com.builtbroken.creation.content.tests;
 
 import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.jlib.model.IcoSphereCreator;
-import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.lib.render.RenderUtility;
 import com.builtbroken.mc.lib.render.model.Model;
 import com.builtbroken.mc.lib.transform.region.Cube;
@@ -130,7 +130,7 @@ public class TileSphere extends Tile
         float scale = 2f;
         GL11.glScalef(scale, scale, scale);
         GL11.glRotatef(y += 1, 0, 1, 0);
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
+        FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
         model.render_wireframe = true;
         model.tessellate();
         GL11.glPopMatrix();
