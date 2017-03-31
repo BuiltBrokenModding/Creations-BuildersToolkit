@@ -1,6 +1,6 @@
 package com.builtbroken.creation.content.glove.modes;
 
-import com.builtbroken.mc.lib.transform.vector.Location;
+import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;

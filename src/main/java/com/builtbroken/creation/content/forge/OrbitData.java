@@ -1,9 +1,8 @@
 package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.mc.api.IWorldPosition;
-import com.builtbroken.mc.core.network.IByteBufReader;
-import com.builtbroken.mc.core.network.IByteBufWriter;
-import com.builtbroken.mc.lib.helper.MathUtility;
+import com.builtbroken.jlib.data.network.IByteBufReader;
+import com.builtbroken.jlib.data.network.IByteBufWriter;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;

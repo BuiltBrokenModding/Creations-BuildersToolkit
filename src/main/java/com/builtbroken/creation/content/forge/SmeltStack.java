@@ -1,7 +1,7 @@
 package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.mc.api.ISave;
-import com.builtbroken.mc.core.network.IByteBufWriter;
+import com.builtbroken.jlib.data.network.IByteBufWriter;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.init.Blocks;

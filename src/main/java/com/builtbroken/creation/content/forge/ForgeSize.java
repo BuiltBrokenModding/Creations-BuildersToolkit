@@ -2,8 +2,8 @@ package com.builtbroken.creation.content.forge;
 
 import com.builtbroken.creation.Creation;
 import com.builtbroken.jlib.data.vector.IPos3D;
-import com.builtbroken.mc.lib.transform.region.Cube;
-import com.builtbroken.mc.lib.transform.vector.Pos;
+import com.builtbroken.mc.imp.transform.region.Cube;
+import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 

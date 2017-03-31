@@ -2,8 +2,8 @@ package com.builtbroken.creation.content.glove.modes;
 
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.handler.SelectionHandler;
-import com.builtbroken.mc.lib.transform.region.Cube;
-import com.builtbroken.mc.lib.transform.vector.Location;
+import com.builtbroken.mc.imp.transform.region.Cube;
+import com.builtbroken.mc.imp.transform.vector.Location;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
