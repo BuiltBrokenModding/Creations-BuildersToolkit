@@ -20,7 +20,7 @@ import net.minecraft.item.ItemStack;
  * Created by robert on 10/1/2014.
  */
 
-@Mod(name = "Creations: Builder's Toolkit", modid = Creation.DOMAIN, version = "@VERSION@", dependencies = "required-after:VoltzEngine")
+@Mod(name = "Creations: Builder's Toolkit", modid = Creation.DOMAIN, version = "@VERSION@", dependencies = "required-after:voltzengine")
 public class Creation extends AbstractMod
 {
     public static final String DOMAIN = "creationsbt";
